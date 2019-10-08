@@ -1,2 +1,2 @@
 # miincode
-Proyecto miincode; creatlector QR
+Proyecto miincode; Crea y lee codigo QR y Aruco
