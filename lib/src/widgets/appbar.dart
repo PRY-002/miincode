@@ -1,0 +1,22 @@
+import 'package:flutter/material.dart';
+import 'package:miincode/src/utils/utils.dart';
+import 'package:miincode/src/views/account/login.dart';
+
+Widget myAppBar (BuildContext context, String titulo){
+  return AppBar(
+    backgroundColor: Colors.black,
+    title: Text(titulo),
+    //centerTitle: true,
+    actions: <Widget>[
+      IconButton(
+        icon: Icon(
+          Icons.power_settings_new,
+          color: Colors.red,
+        ),
+        onPressed: () {
+          showAlertDialog_3(context, 'Importante', 'Seguro que desea Salir...?', Login());
+        },
+      )
+    ],
+  );
+} 

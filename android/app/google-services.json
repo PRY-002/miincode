@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "455197223116",
+    "firebase_url": "https://miincode.firebaseio.com",
+    "project_id": "miincode",
+    "storage_bucket": "miincode.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:455197223116:android:87d27468dbbdcc32457a69",
+        "android_client_info": {
+          "package_name": "com.acanta.miincode"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "455197223116-saae6tdqid2ploip2ovr2hsvkvqn9c3h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.acanta.miincode",
+            "certificate_hash": "c226f2915053b87ccb2d35ac3ebdbc555c70f35b"
+          }
+        },
+        {
+          "client_id": "455197223116-0o7i6a35nnfv3l9jffjtv7rn6mvi8jam.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDe-v6wf4lsQUvP0X6YLmpt1lsLLZHV3uw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "455197223116-0o7i6a35nnfv3l9jffjtv7rn6mvi8jam.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
