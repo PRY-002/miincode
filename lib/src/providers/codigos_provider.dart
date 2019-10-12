@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -8,10 +9,17 @@ import 'package:miincode/src/providers/ws.dart';
 import 'package:miincode/src/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http; 
+import 'package:mime_type/mime_type.dart';
+import 'package:http_parser/http_parser.dart';
 
-  // VARIABLES ----------------------------------
-  String _email;
-  String _idUsuario;
+
+String _email;
+String _idUsuario;
+
+
+//String _urlCloudinary = 'https://api.cloudinary.com/v1_1/dfdy5e4tt/image/upload?upload_preset=h86ampvf';
+String _urlCloudinary = 'https://api.cloudinary.com/v1_1/dfdy5e4tt/image/upload?upload_preset=h86ampvf';
+String _urlApiBase = 'https://api.cloudinary.com/v1_1/dfdy5e4tt';
 
 /* ----- LOGGER ---------------- */
 var logger = Logger(printer: PrettyPrinter());
@@ -25,43 +33,25 @@ class CodigosProvider extends StatefulWidget {
   @override
   _CodigosProviderState createState() => _CodigosProviderState();
 
-  // CREAR CODIGOS
-  Future<bool> crearCodigo(Codigos codigo ) async {
-    try {
-      final url = urlCodigosCreate;
-        logger.i('---------------------> 001 url' + url);
-      final resp = await http.post(
-        url, 
-        body: codigosToJson(codigo) 
-      );
-
-        logger.i('---------------------> 002 resp' + resp.toString());
-      final decodedData = json.decode(resp.body);
-        logger.i('---------------------> 003 decodedData' + decodedData.toString());
-      if ( decodedData == null ) {
-        logger.w('---------------------> 004 NO se pudo registrar el producto en MYSQL. PORQUE no se encontraron datos.');        
-      }
-
-      //return true;
-    } catch (e) {
-      logger.w(e.toString());
-      //return false;
-    }
-  }
-
   Future<http.Response> creaCodigos (BuildContext context, String datos) async {
+
     try {
-      var url = urlCodigosCreate;
-      var response = await http.post(url,
-          headers: {"Content-Type": "application/json"},
-          body: datos
-      );
+
+      var response = await http.post(urlCodigosCreate, headers: {"Content-Type": "application/json"}, body: datos);
+
+      var extractData = json.decode(response.body);
+      String _data = extractData['message'];    
+
       if ( response.statusCode == 200 ) {
-        showAlertDialog_1(context, 'Importante', 'QR guardado satisfactoriamente..');
+        //showAlertDialog(context, 'Éxito', 'QR guardado satisfactoriamente..');´
+        showAlertDialog(context, 'Éxito', _data );
       } else {
-        showAlertDialog_1(context, 'ERROR', 'Hubo problemas al GUARDAR la informacion.\n Response.StatusCode: ' + response.statusCode.toString());
+        showAlertDialog(context, 'Error', '[' + response.statusCode.toString() + '] ' + _data);        
+        //showAlertDialog(context, 'ERROR', 'Hubo problemas al gu la informacion.\n Response.StatusCode: ' + response.statusCode.toString());
       }
+
       return response;
+
     } catch (e) {
       logger.w(e.toString());
     }
@@ -97,6 +87,63 @@ class CodigosProvider extends StatefulWidget {
     });
     return codigos;
   }
+
+
+  Future<String> subirImagen(File imagen) async {
+
+    try {
+      final url = Uri.parse(_urlCloudinary);
+      final mimeType = mime(imagen.path).split('/');
+      final imageUploadRequest = http.MultipartRequest('POST', url);
+      final file = await http.MultipartFile.fromPath('file', imagen.path, contentType: MediaType(mimeType[0], mimeType[1])
+      );
+
+      imageUploadRequest.files.add(file);
+
+      final streamResponse = await imageUploadRequest.send();
+      final resp = await http.Response.fromStream(streamResponse);
+
+      if ( resp.statusCode != 200 && resp.statusCode != 201) {
+        return null;
+      } else {
+        final respData = json.decode(resp.body);
+        return respData['secure_url'];
+      }
+    } catch (e) {
+      logger.w(e.toString());
+    }
+  }
+
+
+
+  Future<String> subirImagen_old(File imagen) async {
+
+    try {
+      final url = Uri.parse(_urlCloudinary);
+      //final url = Uri.parse('https://api.cloudinary.com/v1_1/dfdy5e4tt/image/upload?upload_preset=h86ampvf');
+      final mimeType = mime(imagen.path).split('/');
+
+      final imageUploadRequest = http.MultipartRequest('POST', url);
+
+      final file = await http.MultipartFile.fromPath('file', 
+      imagen.path, contentType: MediaType(mimeType[0], mimeType[1])
+      );
+
+      imageUploadRequest.files.add(file);
+
+      final streamResponse = await imageUploadRequest.send();
+      final resp = await http.Response.fromStream(streamResponse);
+
+      if ( resp.statusCode != 200 && resp.statusCode != 201) {
+        return null;
+      } else {
+        final respData = json.decode(resp.body);
+        return respData['secure_url'];
+      }
+    } catch (e) {
+      logger.w(e.toString());
+    }
+  }  
 
 }
 

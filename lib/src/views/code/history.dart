@@ -121,23 +121,23 @@ print('-------------> 002' + idUsu.toString());
                           child: Container(
                             height: 100,
                             alignment: Alignment.center,
-                            padding: EdgeInsets.all(5),
+                            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                             color: Colors.green[50],
                             child: Column(
                               children: <Widget>[
                                 Container(
                                   alignment: Alignment.topRight,
-                                  child: Text(
-                                    //new DateFormat("dd-MM-yyyy").format(DateTime.parse(data[i]['fec_creacion'])),
-                                    data[i]['fec_creacion'],
-                                    textAlign: TextAlign.left,
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                    child: Text( new DateFormat("dd-MM-yyyy").format(DateTime.parse(data[i]['fec_creacion'])),
+                                      //data[i]['fec_creacion'],
+                                      textAlign: TextAlign.left, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                    ),
                                   ),
                                 ),
-                                Text( data[i]['usuarios_id'] == '' ? 'NO SE REGISTRO ID' : data[i]['usuarios_id'].toString() ),
-                                Text( data[i]['mensaje'], style: TextStyle(fontSize: 8), )
-                                
+                                //Text( data[i]['usuarios_id'] == '' ? 'NO SE REGISTRO ID' : data[i]['usuarios_id'].toString() ),
+                                recortaMsj(data[i]['mensaje'].toString())//Text( data[i]['mensaje'], style: TextStyle(fontSize: 8), )
                               ],
-                              //onTap: () => Navigator.pushNamed(context, 'producto', arguments: producto ),
                             ),
                           ),
                         ),
@@ -147,7 +147,6 @@ print('-------------> 002' + idUsu.toString());
                             alignment: Alignment.center,
                             child: IconButton(
                                 icon: Icon(Icons.remove_red_eye, color: Colors.black, size: 25,),
-                                //onPressed: (){showAlertDialog_1(context, 'Pronto', 'Estara disponible');},
                                 onPressed: (){
                                   showPopUp2(context, data, i);
                                 },
@@ -167,6 +166,15 @@ print('-------------> 002' + idUsu.toString());
       }
     );
   }
+
 }
 
-/* ----------------------------------------------------------------------------------- */
+Widget recortaMsj(String msj) {
+  String _msj;
+  if ( msj.length > 80 ) {
+    _msj = msj.substring(0, 80) + ' ...';
+  } else {
+    _msj = msj;
+  }
+  return Text( _msj );
+}

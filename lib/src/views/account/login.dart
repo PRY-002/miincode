@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:logger/logger.dart';
 import 'package:miincode/src/models/login_model.dart';
+import 'package:miincode/src/pages/home.dart';
 import 'package:miincode/src/providers/ws.dart';
 import 'package:miincode/src/utils/utils_conectividad.dart';
 import 'package:miincode/src/views/code/fetchpost.dart' as prefix0;
@@ -43,8 +44,15 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  bool isButtonEnabled = true;
+  bool isButonDisabled = false;
+  String tituloBoton = 'INGRESAR';
+  Color colorBoton = Colors.black;
+  Color colorTexto = Colors.white;
+
   final _formKey = GlobalKey<FormState>();
   final Color colorNegro = Colors.black;
+  final Color colorButton = Colors.black;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +76,7 @@ class _LoginState extends State<Login> {
 
                 SizedBox(height: 20.0),
                 // TITULO
-                Container(
+               Container(
                     alignment: Alignment.center,
                     child: Text('LOGIN',
                         style: TextStyle(
@@ -88,11 +96,18 @@ class _LoginState extends State<Login> {
                     Container(
                       padding: EdgeInsets.fromLTRB(30, 0, 20, 0),
                       child: TextFormField(
+                        onChanged: (text) { 
+                          print('-------- $text');
+                          if ( text.isEmpty ) {
+                            isButonDisabled = false;
+                          }
+                            isButonDisabled = false;
+                        },
                         validator: (value) {
                           String pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
                             RegExp regExp = new RegExp(pattern);
                             if (value.length == 0) {
-                              return "El Email es necesario.";
+                              return "Se requiere ingresar un email.";
                             } else if(!regExp.hasMatch(value)){
                               return "Email inválido";
                             }else {
@@ -118,9 +133,16 @@ class _LoginState extends State<Login> {
                     Container(
                       padding: EdgeInsets.fromLTRB(30, 0, 20, 0),
                       child: TextFormField(
+                        onChanged: (text) {
+                          print('-------- $text');
+                          if ( text.isEmpty ) {
+                            isButonDisabled = false;
+                          }
+                            isButonDisabled = false;
+                        },
                         validator: (value) {
                           if (value.length == 0 || value.isEmpty ) {
-                            return "Se requiere la contraseña.";
+                            return "Se requiere ingresar la contraseña.";
                             }
                         },
                           obscureText: true,
@@ -149,32 +171,43 @@ class _LoginState extends State<Login> {
                       child: Row(
                         children: <Widget>[
                           Expanded(
-                              flex: 8,
-                              child: Container(
-                                  child: InkWell(
-                                      child: Container(
-                                          padding: EdgeInsets.all(12.0),
-                                          height: double.parse('50.0'),
-                                          decoration: BoxDecoration(
-                                            color: colorNegro,
-                                            borderRadius:
-                                                BorderRadius.circular(6.0),
-                                          ),
-                                          child: Material(
-                                              color: Colors.transparent,
-                                              child: InkWell(
-                                                  onTap: () {
-                                                    if ( _formKey.currentState.validate() ) { }
-                                                    _verificarConexionInternet(context);
-                                                  },
-                                                  child: Center(
-                                                    child: Text("INGRESAR",
-                                                        style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontFamily: "Poppins-Bold",
-                                                            fontSize: 18,
-                                                            letterSpacing: 1.0)),
-                                                  ))))))),
+                            flex: 8,
+                            child: AbsorbPointer(
+                              absorbing: isButonDisabled,
+                              child: RaisedButton(
+                                color: colorBoton,
+                                textColor: colorTexto,
+                                onPressed: isButonDisabled ? null : (){
+                                      print('Valor del BOOLEANO..TEST. ' + isButonDisabled.toString());
+                                       if ( !_formKey.currentState.validate() ) { 
+                                         setState(() {
+                                          isButonDisabled = false; 
+                                         });
+                                       }
+                                        _verificarConexionInternet(context);
+                                    },
+                                child: Text(tituloBoton),
+                                disabledColor: Colors.grey,
+                                disabledTextColor: Colors.white,
+                              ),
+                            )
+                          ),
+                          
+/*                           Expanded(
+                            flex: 4,
+                            child: RaisedButton(
+                              onPressed: isButtonEnabled
+                                 ?
+                                (){
+                                    print('Valor del BOOLEANO... ' + isButtonEnabled.toString());
+                                     if ( _formKey.currentState.validate() ) { }
+                                      _verificarConexionInternet(context);
+                                  }
+                                 :
+                                null,
+                              child: Text('INGRESAR'),
+                            )
+                          ), */
 
                           // Button SALIR
                           /*  ********************************************************************  */
@@ -199,26 +232,6 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     SizedBox(height: 10.0),
-
-                    // Boton LOGIN GOOGLE
-                    /*
-                    Container(
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                      child: FlatButton(
-                        child: Image.asset(
-                          'assets/botonLoginGoogle.png',
-                          fit: BoxFit.fill,
-                        ),
-                        onPressed: () {
-                          String msjContent =
-                              'Muy pronto estará disponible este módulo.';
-                          showAlertDialog_1(context, 'IMPORTANTE', msjContent);
-                        },
-                      ),
-                    ),
-                    */
-                    // REGISTRARSE
 
                     /*  ********************************************************************  */
                     Container(
@@ -245,7 +258,7 @@ class _LoginState extends State<Login> {
   Widget btnCerrar(BuildContext context) {
     return InkWell(
       onTap: () {
-        showAlertDialog_3(context, 'IMPORTANTE', 'Desea cerrar la aplicación.', Login());
+        showAlertDialog_CerrarSesion(context, 'Mensaje', 'Desea cerrar la aplicación.');
       },
       child: Center(
         child: Text("CLOSE",
@@ -270,13 +283,13 @@ class _LoginState extends State<Login> {
   bool validarVaciosEmailPass(BuildContext context, String _usu, String _pass) {
     try {
       if (_usu.isEmpty || _usu == null) {
-        showAlertDialog_1(
-            context, 'IMPORTANTE', 'El campo de Username NO puede estar vacío.');
+        showAlertDialog(
+            context, 'Mensaje', 'El campo de Username NO puede estar vacío.');
         return true;
       } else {
         if (_pass.isEmpty || _pass == null) {
-          showAlertDialog_1(context, 'IMPORTANTE',
-              'El campo de Password NO puede estar vacío.');
+          showAlertDialog(context, 'Mensaje',
+              'El campo de Password no puede estar vacío.');
           return true;
         } else {
           return false;
@@ -298,12 +311,12 @@ _verificarConexionInternet(BuildContext context) async {
     } else if (connectivityResult == ConnectivityResult.wifi) {
       opc = 2;
     } else {
-      showAlertDialog_1(context, 'Importante', 'No puede conectarse. Por favor, compruebe la conexión a Internet');
+      showAlertDialog(context, 'Importante', 'No puede conectarse. Por favor, compruebe la conexión a Internet');
       opc = 0;
     }
 
     if (opc != 0) {
-      Provider.of<LoginState>(context).login();
+     // Provider.of<LoginState>(context).login(); /* A.C. COMENTADO POR QUE DEJABA INGRESAR SIN LOGUEAR */
         iniciarSesion(context);
     }
 
@@ -312,9 +325,12 @@ _verificarConexionInternet(BuildContext context) async {
 
   Future<http.Response> iniciarSesion (BuildContext context) async {
 
+    setState(() {
+    isButonDisabled=true; 
+/*     tituloBoton = 'Procesando ...'; */
+    });
     LoginModel usLogueadoModel = new LoginModel();
     String msj = '';
-    List data;
 
     try {
       
@@ -334,8 +350,8 @@ _verificarConexionInternet(BuildContext context) async {
       var response = await http.post( url, headers: {"Content-Type": "application/json"}, body: datosJson );      
       var  extractData = json.decode(response.body);
 
-      if ( response.statusCode == 200 ) {        
-
+      if ( response.statusCode == 200 ) {
+        // Almacena Datos en Shared Preference --------------------
         spGuardarDatosPersistentesDeUsuario( context, 
           extractData['data']['id'],                extractData['data']['uid'],             extractData['data']['email'],
           extractData['data']['nombres'],           extractData['data']['apepat'],          extractData['data']['apemat'],
@@ -345,14 +361,27 @@ _verificarConexionInternet(BuildContext context) async {
           'login.dart'
         );
 
-      //  goPage(context, Login());
+        Navigator.pushReplacementNamed(context, 'home');
+        setState(() {
+          isButonDisabled = false; 
+          tituloBoton = 'INGRESAR';
+        });
 
       } else {
+        setState(() {
+          isButonDisabled = false; 
+          tituloBoton = 'INGRESAR';
+        });
         msj = extractData['message'];
         if ( _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty ) {
-          showAlertDialog_1(context, 'ERROR', '['+response.statusCode.toString()+'] ' +  msj);
+          showAlertDialog(context, 'ERROR', '['+response.statusCode.toString()+'] ' +  msj);
         }
       }
+      /* setState(() {
+        isButtonEnabled = !isButtonEnabled;
+        print('------- setState -- valor Boolean ' + isButtonEnabled.toString());
+      }); */
+
       return response;
     } catch (e) {
       logger.w(e.toString());
@@ -370,7 +399,7 @@ _verificarConexionInternet(BuildContext context) async {
       
       usLogueadoModel.email = _emailController.text;
 
-      if ( _passwordController.text != null || _passwordController.text != '') { /* Encriptando password ingresado */
+      if ( _passwordController.text != null || _passwordController.text != '') { 
         final plainText = _passwordController.text; 
         final key = encr.Key.fromLength(32);
         final iv = encr.IV.fromLength(16);
@@ -403,7 +432,7 @@ _verificarConexionInternet(BuildContext context) async {
       } else {
         msj = extractData['message'];
         if ( _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty ) {
-          showAlertDialog_1(context, 'ERROR', '['+response.statusCode.toString()+'] ' +  msj);
+          showAlertDialog(context, 'ERROR', '['+response.statusCode.toString()+'] ' +  msj);
         }
       }
       return response;
@@ -494,20 +523,20 @@ _verificarConexionInternet(BuildContext context) async {
     } on PlatformException catch (e) {
       switch (e.code) {
         case 'ERROR_INVALID_EMAIL':
-          showAlertDialog_1(context, 'Importante', 'Correo electrónico inválido.');
+          showAlertDialog(context, 'Importante', 'Correo electrónico inválido.');
           break;
         case 'ERROR_USER_NOT_FOUND':
-          showAlertDialog_1(context, 'Importante', 'El correo indicado no esta registrado.');
+          showAlertDialog(context, 'Importante', 'El correo indicado no esta registrado.');
           break;
         case 'ERROR_WRONG_PASSWORD':
-          showAlertDialog_1(context, 'Importante', 'La contraseña no es correcta');
+          showAlertDialog(context, 'Importante', 'La contraseña no es correcta');
           break;
         case 'Error':
-          showAlertDialog_1(context, 'Importante', e.message);
+          showAlertDialog(context, 'Importante', e.message);
           logger.wtf(e.message);
           break;
         default:
-          showAlertDialog_1(
+          showAlertDialog(
               context, 'Importante', 'Error al intentar ingresar. ' + e.message);
           break;
       }

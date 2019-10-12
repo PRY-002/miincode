@@ -65,7 +65,6 @@ spReturnEmail() async {
   try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final em = await prefs.getString(spEmail);
-    logger.i('--------------------> Email: ' + em);
     return em;    
   } catch (e) {
     logger.w(e.toString());

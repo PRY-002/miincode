@@ -30,7 +30,7 @@ class MyTarjeta extends StatelessWidget {
             child: InkWell(
               //splashColor: Colors.blue.withAlpha(30),
               onTap: () {
-                showAlertDialog_1(context, nameCompany, nameProduct);
+                showAlertDialog(context, nameCompany, nameProduct);
               },
               child: Column(
                 children: <Widget>[

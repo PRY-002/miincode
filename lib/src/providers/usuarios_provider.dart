@@ -46,7 +46,7 @@ class UsuariosProvider {
     final resp = await http.get(url);
     final decodedData = json.decode(resp.body);
     UsuarioModel um = decodedData;
-    if ( um == null ) { showAlertDialog_1(context, 'ALERTA', 'NO SE ENCONTRARON DATOS.'); }
+    if ( um == null ) { showAlertDialog(context, 'ALERTA', 'NO SE ENCONTRARON DATOS.'); }
     return um;
   }
 

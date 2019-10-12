@@ -25,7 +25,7 @@ class ProductosProvider extends StatefulWidget{
 
   @override
   _ProductosProviderState createState() => _ProductosProviderState();
-  
+  /*
   Future<bool> crearProducto( ProductoModel  producto) async {
     try {
       final url = '$_url/productos.json';
@@ -110,10 +110,9 @@ class ProductosProvider extends StatefulWidget{
   }
 
   Future<String> subirImagen(File imagen) async {
-    try {
 
-      // https://res.cloudinary.com/ddsv1vilp/image/upload/v1568019384/miincode/qrcode/Combinaciones_perlas_cheka_cawmfz.jpg
-      final url = Uri.parse('https://api.cloudinary.com/v1_1/ddsv1vilp/image/upload?upload_preset=roim6us7');
+    try {
+      final url = Uri.parse('https://api.cloudinary.com/v1_1/dfdy5e4tt/image/upload?upload_preset=h86ampvf');
       final mimeType = mime(imagen.path).split('/');
 
       final imageUploadRequest = http.MultipartRequest('POST', url);
@@ -131,14 +130,13 @@ class ProductosProvider extends StatefulWidget{
         return null;
       } else {
         final respData = json.decode(resp.body);
-        logger.i('-------------------->IMAGEN SUBIDA ------------------------------');
         return respData['secure_url'];
       }
     } catch (e) {
       logger.w(e.toString());
     }
   }
-
+*/
 
 }
 
@@ -154,7 +152,6 @@ class _ProductosProviderState extends State<ProductosProvider> {
     SharedPreferences sp = await SharedPreferences.getInstance();
     setState(() {
      _email = (sp.getString('spEmail')); 
-     //print('------------------------------------------> Email: ' + _email);
     });
   }
 

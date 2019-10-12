@@ -218,7 +218,7 @@ class _AjustesState extends State<Ajustes> {
   Widget _muestraDatosUsuarioRegistrado(String correo) {
     
     if (correo == null  || correo.isEmpty) {
-      showAlertDialog_1(context, '!!!!', 'El valor de la Variable necesaria es [ ' + correo.toString() + ' ]');  
+      showAlertDialog(context, '!!!!', 'El valor de la Variable necesaria es [ ' + correo.toString() + ' ]');  
     }
     
 
@@ -617,15 +617,15 @@ class _AjustesState extends State<Ajustes> {
       }
 
       if ( um.id == null ) {
-        showAlertDialog_1(context, 'Importante', 'No ha registrado el nro de ID correspondiente.');
+        showAlertDialog(context, 'Mensaje', 'No ha registrado el nro de ID correspondiente.');
       } else {
         up.editarUsuario(um);
-        showAlertDialog_1(context, 'ÉXITO', 'DATOS ACTUALIZADOS.');
+        showAlertDialog(context, 'ÉXITO', 'DATOS ACTUALIZADOS.');
       }
       setState(() {_guardando = false; });
 
     } catch (e) {
-      showAlertDialog_1(context, 'Importante', e.toString());
+      showAlertDialog(context, 'Mensaje', e.toString());
     }
     //Navigator.pop(context);
   }

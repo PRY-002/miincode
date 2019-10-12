@@ -14,7 +14,7 @@ Widget myAppBar (BuildContext context, String titulo){
           color: Colors.red,
         ),
         onPressed: () {
-          showAlertDialog_3(context, 'Importante', 'Seguro que desea Salir...?', Login());
+          showAlertDialog_redireccionable(context, 'Mensaje', 'Seguro que desea Salir...?', 'login');
         },
       )
     ],

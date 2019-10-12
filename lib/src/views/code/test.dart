@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:logger/logger.dart';
 import 'package:miincode/src/models/usuario_model.dart';
+import 'package:miincode/src/providers/codigos_provider.dart';
 import 'package:miincode/src/providers/productos_provider.dart';
 import 'package:miincode/src/utils/utils_conectividad.dart';
 import 'package:path_provider/path_provider.dart';
@@ -127,7 +128,8 @@ class _TestState extends State<Test> {
     } catch (exception) {}
   }
 
-  ProductosProvider prod_prov = ProductosProvider();
+  CodigosProvider cod_prov = CodigosProvider();
+ 
   _saveToImage() async {
     RenderRepaintBoundary boundary = _renderObjectKey.currentContext.findRenderObject();
     ui.Image image = await boundary.toImage(pixelRatio: 5.0);
@@ -141,7 +143,7 @@ class _TestState extends State<Test> {
        // File file = File("$dir/QRCode_" + DateTime.now().millisecondsSinceEpoch.toString() + ".png");
             logger.i('-------------------->'+"-------------------->Ruta Local :"+file.toString());
         await file.writeAsBytes(pngBytes);
-        prod_prov.subirImagen(file);
+        cod_prov.subirImagen(file);
   }
 
   Widget _muestra(File rt) {
