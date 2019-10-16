@@ -1,23 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
-
-import 'package:async_loader/async_loader.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:miincode/src/models/usuario_model.dart';
 import 'package:miincode/src/models/usuario_registrar_model.dart';
 import 'package:miincode/src/providers/codigos_provider.dart';
-import 'package:miincode/src/providers/productos_provider.dart';
-import 'package:miincode/src/providers/usuarios_provider.dart';
 import 'package:miincode/src/providers/ws.dart';
 import 'package:miincode/src/utils/utils.dart';
-import 'login.dart';
 import 'package:http/http.dart' as http;
 import 'package:encrypt/encrypt.dart' as encr;
 
@@ -25,11 +17,6 @@ import 'package:encrypt/encrypt.dart' as encr;
 var logger = Logger(printer: PrettyPrinter());
 var loggerNoStack = Logger(printer: PrettyPrinter(methodCount: 0));
 /* LOGGER ------------------------------- */
-final FirebaseAuth _auth = FirebaseAuth.instance;
-
-Login login = new Login();
-
-final Color colorNegro = Colors.black;
 
 String _fecNacElegidoFormateado;
 DateTime _fecNacElegido;
@@ -37,12 +24,8 @@ String _fecNacActual;
 String _genero = 'F';
 int idPerfil = 1; // 1: Invitado
 
-bool estadoInputs = true;
-bool condicion1 = true;
 int selectedRadio = 0;
 
-String controllerId;
-String controllerUid;
 TextEditingController controllerEmail = TextEditingController();
 TextEditingController controllerPassword = TextEditingController();
 TextEditingController controllerNombres = TextEditingController();
@@ -53,6 +36,7 @@ TextEditingController controllerDisponible = TextEditingController();
 TextEditingController controllerFecNac = TextEditingController();
 TextEditingController controllerGenero = TextEditingController();
 TextEditingController controllerDni = TextEditingController();
+String _urlFoto;
 
 class Register extends StatefulWidget {
   createState() => _RegisterState();
@@ -60,42 +44,35 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
 
-  bool isBtnEnabled = true;
+  bool isButonDisabled2 = false;
+
+  bool isButonDisabled = false;
   String tituloBoton = 'REGISTRAR';
   Color colorBoton = Colors.black;
-  
-  Animation tween;
+  Color colorTexto = Colors.white;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   File image;
   File foto;
-  picker() async {
-    File img = await ImagePicker.pickImage(source: ImageSource.gallery);
-    image = img;
-    foto = image; /* <---- GUARDA imagen en VARIABLE FLOBAL */
-    _procesarImagen(image);
-    setState(() {});
-  }
-
+  
   pickerCamera() async {
-    File img = await ImagePicker.pickImage(
-        source: ImageSource
-            .camera); //ImagePicker.pickImage(source: ImageSource.gallery);
+    File img = await ImagePicker.pickImage( source: ImageSource.camera); //ImagePicker.pickImage(source: ImageSource.gallery);
     image = img;
     foto = image; /* <---- GUARDA imagen en VARIABLE FLOBAL */
-    _procesarImagen(image);
+    //_procesarImagen(context, image);
     setState(() {});
   }
+ 
+@override
+  void initState() {
+    isButonDisabled = true;
+    super.initState();
+  }
 
-  bool _success;
-  String _userEmail;
-  String _userUid;
 
   setSelectedRadio(int val) {
     setState(() {
       selectedRadio = val;
-
       if (val == 0) {
         _genero = 'F';
       } else if (val == 1) {
@@ -106,17 +83,39 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext contextRegister) {
+    validacionEstado(){
+      if ( controllerEmail.text.isEmpty || controllerEmail.text == '') {
+        setState(() {
+          isButonDisabled = true;
+        });
+      } else if ( controllerPassword.text.isEmpty || controllerPassword.text == '') {
+        setState(() {
+          isButonDisabled = true;
+        });
+      } else if ( controllerNombres.text.isEmpty || controllerNombres.text == '') {
+        setState(() {
+          isButonDisabled = true;
+        });
+      } else if ( controllerApePat.text.isEmpty || controllerApePat.text == '') {
+        setState(() {
+          isButonDisabled = true;
+        });
+      } else if ( controllerApeMat.text.isEmpty || controllerApeMat.text == '') {
+        setState(() {
+          isButonDisabled = true;
+        });
+      } else if ( _fecNacActual == null || _fecNacActual.isEmpty || _fecNacActual == '' ) {
+        setState(() {
+          isButonDisabled = true;
+        });
+      } else {
+        setState(() {
+          isButonDisabled = false;
+        });
+      }
+    }
     return Scaffold(
-      //appBar: myAppBar(context, 'REGISTRO'),
-      body: Stack(
-        alignment: Alignment.center,
-        children: _datosCompletos(contextRegister),
-      ),
-    );
-  }
-
-  List<Widget> _datosCompletos(BuildContext context) {
-    Container contenedor = new Container(
+        body: Container(
       width: double.infinity,
       height: double.infinity,
       padding: EdgeInsets.all(5),
@@ -180,12 +179,14 @@ class _RegisterState extends State<Register> {
                           ),
                         )),
                       ),
-
                       //EMAIL
                       Padding(
                         padding: const EdgeInsets.all(5.0),
                         child: Container(
                           child: TextFormField(
+                            onChanged: (text) { 
+                              validacionEstado();
+                            },
                             validator: (value) {
                               String pattern =
                                   r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
@@ -198,7 +199,6 @@ class _RegisterState extends State<Register> {
                                 return null;
                               }
                             },
-                            enabled: estadoInputs,
                             textAlign: TextAlign.center,
                             keyboardType: TextInputType.emailAddress,
                             controller: controllerEmail,
@@ -213,6 +213,9 @@ class _RegisterState extends State<Register> {
                         padding: const EdgeInsets.all(5.0),
                         child: Container(
                           child: TextFormField(
+                            onChanged: (text) { 
+                              validacionEstado();
+                            },
                             validator: (value) {
                               //validarVacio(value, 'contraseña');
                               if (value.length == 0 || value.isEmpty) {
@@ -220,7 +223,6 @@ class _RegisterState extends State<Register> {
                               }
                             },
                             obscureText: true,
-                            enabled: estadoInputs,
                             textAlign: TextAlign.center,
                             controller: controllerPassword,
                             decoration: InputDecoration(
@@ -235,13 +237,15 @@ class _RegisterState extends State<Register> {
                           padding: const EdgeInsets.all(5.0),
                           child: Container(
                             child: TextFormField(
+                              onChanged: (text) { 
+                                validacionEstado();
+                              },
                               validator: (value) {
                                 //validarVacio(value, 'contraseña');
                                 if (value.length == 0 || value.isEmpty) {
                                   return "Los nombres son necesarios.";
                                 }
                               },
-                              enabled: estadoInputs,
                               textAlign: TextAlign.center,
                               controller: controllerNombres,
                               decoration: InputDecoration(
@@ -259,12 +263,14 @@ class _RegisterState extends State<Register> {
                               padding: const EdgeInsets.all(5.0),
                               child: Container(
                                 child: TextFormField(
+                                  onChanged: (text) { 
+                                    validacionEstado();
+                                  },
                                   validator: (value) {
                                     if (value.length == 0 || value.isEmpty) {
                                       return "El apellido paterno es necesario.";
                                     }
                                   },
-                                  enabled: estadoInputs,
                                   textAlign: TextAlign.center,
                                   controller: controllerApePat,
                                   decoration: InputDecoration(
@@ -280,12 +286,14 @@ class _RegisterState extends State<Register> {
                               padding: const EdgeInsets.all(5.0),
                               child: Container(
                                 child: TextFormField(
+                                  onChanged: (text) { 
+                                    validacionEstado();
+                                  },
                                   validator: (value) {
                                     if (value.length == 0 || value.isEmpty) {
                                       return "El apellido materno es necesario.";
                                     }
                                   },
-                                  enabled: estadoInputs,
                                   textAlign: TextAlign.center,
                                   controller: controllerApeMat,
                                   decoration: InputDecoration(
@@ -297,7 +305,6 @@ class _RegisterState extends State<Register> {
                           ),
                         ],
                       ),
-
                       Row(
                         children: <Widget>[
                           Expanded(
@@ -308,9 +315,11 @@ class _RegisterState extends State<Register> {
                                   padding: const EdgeInsets.all(5.0),
                                   child: Container(
                                     child: TextFormField(
+                                      onChanged: (text) { 
+                                        validacionEstado();
+                                      },
                                       maxLength: 8,
                                       scrollPadding: EdgeInsets.all(5),
-                                      enabled: estadoInputs,
                                       keyboardType: TextInputType.number,
                                       textAlign: TextAlign.center,
                                       controller: controllerDni,
@@ -346,70 +355,48 @@ class _RegisterState extends State<Register> {
                                             //textTheme: ButtonTextTheme.normal,
                                             color: Colors.white,
                                             label: Text(
-                                              _fecNacActual != null &&
-                                                      _fecNacElegidoFormateado ==
-                                                          null
-                                                  ? _fecNacActual = ''
-                                                  : _fecNacElegidoFormateado ==
-                                                          null
-                                                      ? 'Elige Fecha'
-                                                      : '${_fecNacElegidoFormateado}',
+                                              _fecNacActual != null && _fecNacElegidoFormateado == null
+                                                ? 
+                                              _fecNacActual = ''
+                                                : 
+                                              _fecNacElegidoFormateado == null
+                                                  ? 
+                                                'Elige Fecha'
+                                                  : 
+                                                '${_fecNacElegidoFormateado}',
                                               style: TextStyle(
                                                   color: Colors.black),
                                             ),
                                             icon: Icon(Icons.date_range),
                                             onPressed: () {
-                                              estadoInputs == true
-                                                  ? DatePicker.showDatePicker(
-                                                      context,
-                                                      theme: DatePickerTheme(
-                                                          backgroundColor:
-                                                              Colors.black,
-                                                          cancelStyle:
-                                                              TextStyle(
-                                                                  color: Colors
-                                                                      .red),
-                                                          itemStyle: TextStyle(
-                                                              color:
-                                                                  Colors.white),
-                                                          containerHeight: 220,
-                                                          doneStyle: TextStyle(
-                                                              color: Colors
-                                                                  .green)),
-                                                      showTitleActions: true,
-                                                      minTime:
-                                                          DateTime(1980, 1, 1),
-                                                      maxTime: DateTime(
-                                                          2030, 12, 31),
-                                                      onChanged: (date) {},
-                                                      onConfirm: (date) {
-                                                        _fecNacElegido = date;
-                                                        if (_fecNacElegido !=
-                                                                null ||
-                                                            _fecNacElegido !=
-                                                                '') {
-                                                          final f = new DateFormat(
-                                                                  'dd-MM-yyyy')
-                                                              .format(
-                                                                  _fecNacElegido);
-                                                          setState(() {
-                                                            _fecNacElegidoFormateado =
-                                                                f.toString();
-                                                            _fecNacActual =
-                                                                _fecNacElegidoFormateado;
-                                                          });
-                                                        } else {
-                                                          showAlertDialog(
-                                                              context,
-                                                              'Mensaje de Error.',
-                                                              'Debe seleccioanr una fecha.');
-                                                        }
-                                                      },
-                                                      currentTime:
-                                                          DateTime.now(),
-                                                      locale: LocaleType.es,
-                                                    )
-                                                  : Container();
+                                              DatePicker.showDatePicker( context,
+                                                  currentTime: null, //DateTime.now(),
+                                                  locale: LocaleType.es,                                                      
+                                                  theme: DatePickerTheme(
+                                                    backgroundColor: Colors.black,
+                                                    cancelStyle: TextStyle( color: Colors.red),
+                                                    itemStyle: TextStyle( color: Colors.white),
+                                                    containerHeight: 220,
+                                                    doneStyle: TextStyle( color: Colors.green)
+                                                  ),
+                                                  showTitleActions: true,
+                                                  
+                                                  minTime: DateTime(1980, 1, 1),
+                                                  maxTime: DateTime(2030, 12, 31),
+                                                  //onChanged: (date) {},
+                                                  onConfirm: (date) {
+                                                    _fecNacElegido = date;
+                                                    if (_fecNacElegido != null) {
+                                                      final fechaFormateada = new DateFormat('dd-MM-yyyy').format(_fecNacElegido);
+                                                      setState(() {
+                                                        _fecNacElegidoFormateado = fechaFormateada.toString();
+                                                        _fecNacActual = _fecNacElegidoFormateado;
+                                                      });
+                                                    } else {
+                                                      showAlertDialog( context, 'Mensaje de Error.', 'Debe seleccioanr una fecha.' );
+                                                    }
+                                                  },
+                                                );
                                             },
                                           ),
                                         ])),
@@ -493,9 +480,11 @@ class _RegisterState extends State<Register> {
                             child: Padding(
                               padding: const EdgeInsets.all(5.0),
                               child: TextFormField(
+                                onChanged: (text) { 
+                                  validacionEstado();
+                                },
                                 maxLength: 20,
                                 keyboardType: TextInputType.number,
-                                enabled: estadoInputs,
                                 textAlign: TextAlign.center,
                                 controller: controllerNroMovil,
                                 decoration: InputDecoration(
@@ -510,39 +499,57 @@ class _RegisterState extends State<Register> {
 
                       Row(
                         children: <Widget>[
+                          // boton REGISTRAR
                           Expanded(
                               flex: 8,
-                              child: Container(
-                                  child: InkWell(
-                                      child: Container(
-                                          height: double.parse('50.0'),
-                                          decoration: BoxDecoration(
-                                            color: colorBoton,
-                                            borderRadius:
-                                                BorderRadius.circular(6.0),
-                                          ),
-                                          child: Material(
-                                              color: Colors.transparent,
-                                              child: btnRegistrar(context)))))),
-                          // Button SALIR
-                          /*  ********************************************************************  */
-                          Expanded(
-                              flex: 4,
-                              child: Container(
-                                padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                child: InkWell(
-                                  child: Container(
-                                    height: double.parse('50.0'),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      borderRadius: BorderRadius.circular(6.0),
-                                    ),
-                                    child: Material(
-                                        color: Colors.transparent,
-                                        child: btnCerrar(context)),
-                                  ),
+                              child: AbsorbPointer(
+                                absorbing: isButonDisabled,
+                                child: RaisedButton(
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                                  color: colorBoton,
+                                  textColor: colorTexto,
+                                  onPressed: isButonDisabled ? null : () {                                    
+                                      if (_fecNacActual == null || _fecNacActual.isEmpty) {
+                                        showAlertDialog( context, '! Error', 'Debe seleccionar una fecha de nacimiento.');
+                                      } else if (_genero == null || _genero.isEmpty) {
+                                        showAlertDialog( context, '! Error', 'Debe seleccionar el género.');
+                                      } else if ( !_formKey.currentState.validate() ) {
+                                        setState(() {
+                                          isButonDisabled = true; 
+                                        });
+                                      } else {
+
+                                        registrarUsuario('SN', controllerEmail, controllerPassword, controllerNombres, controllerApePat,
+                                          controllerApeMat, _fecNacActual, _genero, controllerDni, controllerNroMovil,
+                                          DateTime.now().toString(), DateTime.now().toString(), true, idPerfil);
+                                      }
+                                    },
+                                  child: Text(tituloBoton,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: "Poppins-Bold",
+                                      fontSize: 18,
+                                      letterSpacing: 1.0)),
+                                  disabledColor: Colors.grey,
+                                  disabledTextColor: Colors.white,
                                 ),
-                              ))
+                              )
+                          ),
+                          // Button SALIR
+                          Expanded(
+                            flex: 4,
+                            child: Container(
+                              padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+                              child: RaisedButton(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                                color: Colors.red,
+                                onPressed: (){
+                                  showAlertDialogRedireccionableOpc_siNO( context, 'Mensaje', 'Desea crear otro usuario.', 'login');
+                                },
+                                child: Text('CLOSE', style: TextStyle(color: Colors.white)),
+                              )
+                            )
+                          )
                         ],
                       )
                     ],
@@ -553,44 +560,8 @@ class _RegisterState extends State<Register> {
           ))
         ],
       ),
+      )
     );
-
-    var l = new List<Widget>();
-    l.add(contenedor);
-
-
-    return l;
-  }
-
-  Widget btnRegistrar(BuildContext context) {
-    return InkWell(
-        onTap: isBtnEnabled
-            ? () {
-              print('valor BOOLEAN true           ---> ' + isBtnEnabled.toString());
-                if (!_formKey.currentState.validate()) {
-                }
-                if (_fecNacActual == null || _fecNacActual.isEmpty) {
-                  showAlertDialog( context, '! Error', 'Debe seleccionar una fecha de nacimiento.');
-                } else if (_genero == null || _genero.isEmpty) {
-                  showAlertDialog( context, '! Error', 'Debe seleccionar el género.');
-                } else {
-                  registrarUsuario('SN', controllerEmail, controllerPassword, controllerNombres, controllerApePat,
-                      controllerApeMat, _fecNacActual, _genero, controllerDni, controllerNroMovil,
-                      DateTime.now().toString(), DateTime.now().toString(), true, idPerfil);
-                }
-
-              }
-            : () {
-                print('valor BOOLEAN false           ---> ' + isBtnEnabled.toString());
-              },
-        child: Center(
-          child: Text(tituloBoton,
-              style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: "Poppins-Bold",
-                  fontSize: 18,
-                  letterSpacing: 1.0)),
-        ));
   }
 
   void limpiarCampos() {
@@ -601,68 +572,26 @@ class _RegisterState extends State<Register> {
     controllerApeMat.clear();
     controllerDni.clear();
     controllerNroMovil.clear();
+    _fecNacElegido = null;
+    _fecNacElegidoFormateado = '';
     _fecNacActual = '';
     _genero = 'F';
+    _urlFoto = '';
   }
 
-  Widget btnCerrar(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        showAlertDialog_redireccionable(
-            context, 'Mensaje', 'Desea cerrar la aplicación.', 'login');
-      },
-      child: Center(
-        child: Text("CLOSE",
-            style: TextStyle(
-                color: Colors.black,
-                fontFamily: "Poppins-Bold",
-                fontSize: 18,
-                letterSpacing: 1.0)),
-      ),
-    );
-  }
+  registrarUsuario( String _uid, TextEditingController _email, TextEditingController _password,
+    TextEditingController _nombres, TextEditingController _apePat, TextEditingController _apeMat,
+    String _fecNacimiento, String _genero, TextEditingController _dni, TextEditingController _nroMovil,
+    String _fecCreacion, String _fecActualizacion, bool _estado, int _perfilesId) async {
 
-  String validateEmail(String value) {
-    String pattern =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regExp = new RegExp(pattern);
-    if (value.length == 0) {
-      return "Ingrese un email.";
-    } else if (!regExp.hasMatch(value)) {
-      return "Email inválido";
-    } else {
-      return null;
-    }
-  }
-
-  _procesarImagen(File img) async {
-    foto = image;
-    if (foto != null) {
-      //producto.fotoUrl = null;
-    }
-    setState(() {});
-  }
-
-  Future<http.Response> registrarUsuario( String _uid,
-                                          TextEditingController _email,
-                                          TextEditingController _password,
-                                          TextEditingController _nombres,
-                                          TextEditingController _apePat,
-                                          TextEditingController _apeMat,
-                                          String _fecNacimiento,
-                                          String _genero,
-                                          TextEditingController _dni,
-                                          TextEditingController _nroMovil,
-                                          String _fecCreacion,
-                                          String _fecActualizacion,
-                                          bool _estado,
-                                          int _perfilesId) async {
+    setState(() {
+      isButonDisabled = true;
+      tituloBoton = 'Procesando ...';
+    });
 
     CodigosProvider cp = new CodigosProvider();
     UsuarioRegistrarModel usRegistrarModel = new UsuarioRegistrarModel();
-
     try {
-
       usRegistrarModel.fec_nacimiento = _fecNacimiento;
       usRegistrarModel.uid = _uid;
       usRegistrarModel.email = _email.text;
@@ -682,73 +611,45 @@ class _RegisterState extends State<Register> {
       usRegistrarModel.genero = _genero;
       usRegistrarModel.dni = _dni.text;
 
-      final _urlFoto = await cp.subirImagen(foto); // SUBE LA FOTO
-
-
-      
-
+      _urlFoto = await cp.verificarConexionInternetSubirImagen(context, foto); // SUBE LA FOTO
         if (_urlFoto == null || _urlFoto.isEmpty || _urlFoto == '') {
           showAlertDialog(context, 'Error', 'Se requiere agregar una foto.');
           usRegistrarModel.url_foto = '';
-        } else {
-            if (isBtnEnabled){
+        } else if( _urlFoto == 'No hay Internet') {
+          showAlertDialog(context, 'Error', 'No puede conectarse. Por favor, compruebe la conexión a Internet');
+        } else {          
+          usRegistrarModel.url_foto = _urlFoto;
+          usRegistrarModel.nro_movil = _nroMovil.text;
+          usRegistrarModel.fec_creacion = _fecCreacion;
+          usRegistrarModel.fec_actualizacion = _fecActualizacion;
+          usRegistrarModel.estado = _estado;
+          usRegistrarModel.perfiles_id = _perfilesId;
+          var response;
+
+          if (usRegistrarModel.email != '' && usRegistrarModel.password != '' && usRegistrarModel.nombres != '' &&
+            usRegistrarModel.apepat != '' && usRegistrarModel.apemat != '' && usRegistrarModel.fec_nacimiento != '' &&
+            usRegistrarModel.genero != '' && usRegistrarModel.url_foto != '') {             
+
+            String datosJson = usuarioRmToJson(usRegistrarModel);
+            var url = urlRegisterUser;
+            response = await http.post(url, headers: {"Content-Type": "application/json"}, body: datosJson);
+            var extractData = json.decode(response.body);
+            String _data = extractData['message'];
+
+            if (response.statusCode == 200) {
+              limpiarCampos();
+              showAlertDialogRedireccionable(
+                  context, 'Éxito', _data + '\n' + controllerEmail.text, 'login');
+            } else {
               setState(() {
-                isBtnEnabled = false;
-                tituloBoton = 'Procesando...';
-                colorBoton = Colors.grey;
-              });        
-
-
-              usRegistrarModel.url_foto = _urlFoto;
-              usRegistrarModel.nro_movil = _nroMovil.text;
-              usRegistrarModel.fec_creacion = _fecCreacion;
-              usRegistrarModel.fec_actualizacion = _fecActualizacion;
-              usRegistrarModel.estado = _estado;
-              usRegistrarModel.perfiles_id = _perfilesId;
-              var response;
-
-              if (usRegistrarModel.email != '' &&
-                  usRegistrarModel.password != '' &&
-                  usRegistrarModel.nombres != '' &&
-                  usRegistrarModel.apepat != '' &&
-                  usRegistrarModel.apemat != '' &&
-                  usRegistrarModel.fec_nacimiento != '' &&
-                  usRegistrarModel.genero != '' &&
-                  usRegistrarModel.url_foto != '') {
-
-                String datosJson = usuarioRmToJson(usRegistrarModel);
-                var url = urlRegisterUser;
-                response = await http.post(url,
-                    headers: {"Content-Type": "application/json"}, body: datosJson);
-
-                var extractData = json.decode(response.body);
-                String _data = extractData['message'];
-                // bool _rsEstado = extractData['estado'];
-
-                if (response.statusCode == 200) {
-                  limpiarCampos();
-                  showAlertDialog_redireccionable(
-                      context, 'Éxito', _data + '\n' + controllerEmail.text, 'login');
-                } else {
-                  showAlertDialog(context, 'Error',
-                      '[' + response.statusCode.toString() + ']¨' + _data);
-                }
-
-              setState(() {
-                isBtnEnabled = true;
+                isButonDisabled = false;
                 tituloBoton = 'REGISTRAR';
-                colorBoton = Colors.black;
-              });
-
+              });              
+              showAlertDialog(context, 'Error', '[' + response.statusCode.toString() + ']¨' + _data);
+            }
           }
-
-
-
           return response;
         }
-      }
-
-
     } catch (e) {
       logger.w('ERROR:\n' + e.toString());
     }

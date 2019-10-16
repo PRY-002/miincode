@@ -47,9 +47,9 @@ QRCodeCreator(
 }
 
 class _QRCodeCreator extends State<QRCodeCreator> {
+  bool isButonDisabled = false;
+  String tituloBotonCrearCodigo = 'GUARDAR';
   bool saving = false;
-  
-
 
   setStateLoader(bool val) {
     setState(() {
@@ -82,6 +82,19 @@ class _QRCodeCreator extends State<QRCodeCreator> {
 
   @override
   Widget build(BuildContext context) {
+    validacionEstado(){
+    if ( mensaje == '' || mensaje == null) {
+      print('NO ha indicado un Mensaje...');
+      setState(() {
+        isButonDisabled = true;
+      });
+    } else {
+      setState(() {
+        isButonDisabled = false;
+      });
+    }
+  }
+
     final key3 = new GlobalKey();
     return Scaffold(
       key: key3,
@@ -154,7 +167,6 @@ class _QRCodeCreator extends State<QRCodeCreator> {
       ),
     );
   }
-
 // -------------------------------------------------------------------------------
   insertarBoton(String tipo) {
     switch (tipo) {
@@ -200,17 +212,13 @@ class _QRCodeCreator extends State<QRCodeCreator> {
   }
 
   Widget _crearBotonShowWebPage(String mensaje) {
-    return AbsorbPointer(
-      absorbing: false,
-      child: RaisedButton.icon(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          color: Colors.black,
-          textColor: Colors.white,
-          label: Text('Abrir página Web'),
-          icon: Icon(Icons.link),
-          onPressed: () => _submitShowWebPage(mensaje)),
-    );
+    return RaisedButton.icon(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        color: Colors.black,
+        textColor: Colors.white,
+        label: Text('Abrir página Web'),
+        icon: Icon(Icons.link),
+        onPressed: () => _submitShowWebPage(mensaje));
   }
 
   Widget _crearBotonSendSms(String mensaje) {
@@ -257,18 +265,22 @@ class _QRCodeCreator extends State<QRCodeCreator> {
 
   Widget _crearBoton() {
     return AbsorbPointer(
-      absorbing: false,
-      child: 
-        RaisedButton.icon(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-          color: Colors.deepPurple,
-          textColor: Colors.white,
-          label: Text('GUARDAR'),
-          icon: Icon(Icons.save),
-          onPressed: ()  {
-            _submit();
-          }
-        )        
+      absorbing: isButonDisabled,
+      child: RaisedButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        color: Colors.redAccent,
+        textColor: Colors.white,
+        onPressed: isButonDisabled ? null : ()  {
+          _submit();
+          setState(() {
+            isButonDisabled = true;
+            tituloBotonCrearCodigo = 'Procesando ...';
+          });
+        },
+        child: Text(tituloBotonCrearCodigo),
+        disabledColor: Colors.grey,
+        disabledTextColor: Colors.white,
+      ),
     );
   }
 
@@ -295,7 +307,7 @@ class _QRCodeCreator extends State<QRCodeCreator> {
 
   void _submit() async {
 
-    try {      
+    try {
       /* INI Guardar IMAGEN en CLOUDINARY */
         RenderRepaintBoundary boundary = _renderObjectKey.currentContext.findRenderObject();
         ui.Image image = await boundary.toImage(pixelRatio: 5.0);
@@ -322,6 +334,10 @@ class _QRCodeCreator extends State<QRCodeCreator> {
           String datosJson = codigosToJson(codigos);
           codigoProvider.creaCodigos(context, datosJson);          
       }
+      setState(() {
+        isButonDisabled = true;
+        tituloBotonCrearCodigo = 'Procesado';
+      });
     } catch (e) {
       logger.w(e.toString());
     }

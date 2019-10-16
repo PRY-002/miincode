@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:miincode/src/models/codigo_model.dart';
@@ -70,7 +71,6 @@ class CodigosProvider extends StatefulWidget {
   Future<List<CodigoModel>> listarCodigos() async {
     
     final resp = await http.get('http://192.168.1.112:2800/api/codigos/list/4');//_urlListCodigos);
-    logger.w('-------> 0001 ' + resp.body.toString());
     if ( resp == null ) {
       logger.w('SE ENCONTRO NULO');
     }
@@ -90,7 +90,6 @@ class CodigosProvider extends StatefulWidget {
 
 
   Future<String> subirImagen(File imagen) async {
-
     try {
       final url = Uri.parse(_urlCloudinary);
       final mimeType = mime(imagen.path).split('/');
@@ -110,40 +109,30 @@ class CodigosProvider extends StatefulWidget {
         return respData['secure_url'];
       }
     } catch (e) {
-      logger.w(e.toString());
+      logger.w('--------> Problemas al subir la imagen: \n' + e.toString());
     }
   }
 
+  verificarConexionInternetSubirImagen(BuildContext context, File imagen) async {
+    int opc = 0;
+    var connectivityResult = await (Connectivity().checkConnectivity());
 
-
-  Future<String> subirImagen_old(File imagen) async {
-
-    try {
-      final url = Uri.parse(_urlCloudinary);
-      //final url = Uri.parse('https://api.cloudinary.com/v1_1/dfdy5e4tt/image/upload?upload_preset=h86ampvf');
-      final mimeType = mime(imagen.path).split('/');
-
-      final imageUploadRequest = http.MultipartRequest('POST', url);
-
-      final file = await http.MultipartFile.fromPath('file', 
-      imagen.path, contentType: MediaType(mimeType[0], mimeType[1])
-      );
-
-      imageUploadRequest.files.add(file);
-
-      final streamResponse = await imageUploadRequest.send();
-      final resp = await http.Response.fromStream(streamResponse);
-
-      if ( resp.statusCode != 200 && resp.statusCode != 201) {
-        return null;
-      } else {
-        final respData = json.decode(resp.body);
-        return respData['secure_url'];
-      }
-    } catch (e) {
-      logger.w(e.toString());
+    if (connectivityResult == ConnectivityResult.mobile) {
+      opc = 1;
+    } else if (connectivityResult == ConnectivityResult.wifi) {
+      opc = 2;
+    } else {
+      opc = 0;
     }
-  }  
+
+    if (opc != 0) {
+        String foto = await subirImagen(imagen);
+        return foto;
+    } else {
+      return 'No hay Internet';
+    }
+
+  }
 
 }
 

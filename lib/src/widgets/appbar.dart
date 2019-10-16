@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:miincode/src/utils/utils.dart';
-import 'package:miincode/src/views/account/login.dart';
 
 Widget myAppBar (BuildContext context, String titulo){
   return AppBar(
@@ -14,7 +13,7 @@ Widget myAppBar (BuildContext context, String titulo){
           color: Colors.red,
         ),
         onPressed: () {
-          showAlertDialog_redireccionable(context, 'Mensaje', 'Seguro que desea Salir...?', 'login');
+          showAlertDialogRedireccionableOpc_SIno(context, 'Mensaje', 'Seguro que desea Salir...?', 'login');
         },
       )
     ],

@@ -5,16 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:logger/logger.dart';
 import 'package:miincode/src/models/login_model.dart';
-import 'package:miincode/src/pages/home.dart';
 import 'package:miincode/src/providers/ws.dart';
 import 'package:miincode/src/utils/utils_conectividad.dart';
-import 'package:miincode/src/views/code/fetchpost.dart' as prefix0;
-import 'package:provider/provider.dart';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:miincode/src/utils/utils.dart';
-import 'package:miincode/src/views/account/login_state.dart';
-import 'register.dart';
 import 'package:http/http.dart' as http; 
 import 'package:encrypt/encrypt.dart' as encr;
 
@@ -23,6 +18,7 @@ var logger = Logger(printer: PrettyPrinter());
 var loggerNoStack = Logger(printer: PrettyPrinter(methodCount: 0));
 /* ----- LOGGER ---------------- */
 
+final Color colorNegro = Colors.black;
 Login login = new Login();
 
 TextEditingController _emailController = TextEditingController();
@@ -44,8 +40,11 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  bool isButtonEnabled = true;
   bool isButonDisabled = false;
+  bool isObscurTextPassword = true;
+  Color colorBotonObscureTextPassword = Colors.black;
+  Icon iconBotonObscureTextPassword = Icon(Icons.visibility_off);
+
   String tituloBoton = 'INGRESAR';
   Color colorBoton = Colors.black;
   Color colorTexto = Colors.white;
@@ -56,7 +55,24 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    //shadow
+    validacionEstado(){
+    if ( _emailController.text.isEmpty || _emailController.text == '') {
+      print('El nombre de usuario esta vacío.');
+      setState(() {
+        isButonDisabled = true;
+      });
+    } else if ( _passwordController.text.isEmpty || _passwordController.text == '') {
+      print('La contraseña esta vacía.');
+      setState(() {
+        isButonDisabled = true;
+      });
+    } else {
+      setState(() {
+        isButonDisabled = false;
+      });
+    }
+  }
+    
     return Scaffold(
       body: Form(
         key: _formKey,
@@ -73,7 +89,6 @@ class _LoginState extends State<Login> {
                     height: 120,
                   ),
                 ),
-
                 SizedBox(height: 20.0),
                 // TITULO
                Container(
@@ -97,11 +112,7 @@ class _LoginState extends State<Login> {
                       padding: EdgeInsets.fromLTRB(30, 0, 20, 0),
                       child: TextFormField(
                         onChanged: (text) { 
-                          print('-------- $text');
-                          if ( text.isEmpty ) {
-                            isButonDisabled = false;
-                          }
-                            isButonDisabled = false;
+                          validacionEstado();
                         },
                         validator: (value) {
                           String pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
@@ -127,41 +138,63 @@ class _LoginState extends State<Login> {
                                     BorderRadius.all(Radius.circular(8)))),
                       ),
                     ),
-
                     SizedBox(height: 10.0),
+
                     // Input PASSWORD
                     Container(
                       padding: EdgeInsets.fromLTRB(30, 0, 20, 0),
-                      child: TextFormField(
-                        onChanged: (text) {
-                          print('-------- $text');
-                          if ( text.isEmpty ) {
-                            isButonDisabled = false;
-                          }
-                            isButonDisabled = false;
-                        },
-                        validator: (value) {
-                          if (value.length == 0 || value.isEmpty ) {
-                            return "Se requiere ingresar la contraseña.";
-                            }
-                        },
-                          obscureText: true,
-                          keyboardType: TextInputType.text,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: colorNegro, fontSize: 15),
-                          controller: _passwordController,
-                          decoration: InputDecoration(
-                              labelText: 'Contraseña',
-                              labelStyle: _estiloLabel,
-                              border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      style: BorderStyle.solid,
-                                      width: 1,
-                                      color: Colors.red),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(8))))),
+                      child: Row(
+                        children: <Widget>[
+                          // CONTRASEÑA
+                          Expanded(
+                            flex: 10,
+                            child: TextFormField(
+                              onChanged: (text) {
+                                validacionEstado();
+                              },
+                              validator: (value) {
+                                if (value.length == 0 || value.isEmpty ) {
+                                  return "Se requiere ingresar la contraseña.";
+                                  }
+                              },
+                                obscureText: isObscurTextPassword,
+                                keyboardType: TextInputType.text,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: colorNegro, fontSize: 15),
+                                controller: _passwordController,
+                                decoration: InputDecoration(
+                                    labelText: 'Contraseña',
+                                    labelStyle: _estiloLabel,
+                                    border: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            style: BorderStyle.solid,
+                                            width: 1,
+                                            color: Colors.red),
+                                        borderRadius:
+                                            BorderRadius.all(Radius.circular(8))))
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: IconButton(
+                              icon: iconBotonObscureTextPassword,
+                              onPressed: (){
+                                setState(() {
+                                  isObscurTextPassword = !isObscurTextPassword; 
+                                  if (isObscurTextPassword ) {
+                                    colorBotonObscureTextPassword = Colors.black;
+                                    iconBotonObscureTextPassword = Icon(Icons.visibility, color: colorBotonObscureTextPassword, size: 30);
+                                  } else {
+                                    colorBotonObscureTextPassword = Colors.grey;
+                                    iconBotonObscureTextPassword = Icon(Icons.visibility_off, color: colorBotonObscureTextPassword, size: 30);
+                                  }
+                                });
+                              },
+                            ),
+                          )
+                        ],
+                      ),
                     ),
-
                     SizedBox(height: 10.0),
 
                     // Button INGRESAR y SALIR
@@ -170,21 +203,23 @@ class _LoginState extends State<Login> {
                       padding: EdgeInsets.fromLTRB(30, 0, 20, 0),
                       child: Row(
                         children: <Widget>[
+                          // BUton INGRESAR
                           Expanded(
                             flex: 8,
                             child: AbsorbPointer(
                               absorbing: isButonDisabled,
                               child: RaisedButton(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
                                 color: colorBoton,
                                 textColor: colorTexto,
                                 onPressed: isButonDisabled ? null : (){
-                                      print('Valor del BOOLEANO..TEST. ' + isButonDisabled.toString());
+                                      print('Valor del BOOLEANO... ' + isButonDisabled.toString());
                                        if ( !_formKey.currentState.validate() ) { 
                                          setState(() {
                                           isButonDisabled = false; 
                                          });
                                        }
-                                        _verificarConexionInternet(context);
+                                        verificarConexionInternet(context);
                                     },
                                 child: Text(tituloBoton),
                                 disabledColor: Colors.grey,
@@ -192,22 +227,6 @@ class _LoginState extends State<Login> {
                               ),
                             )
                           ),
-                          
-/*                           Expanded(
-                            flex: 4,
-                            child: RaisedButton(
-                              onPressed: isButtonEnabled
-                                 ?
-                                (){
-                                    print('Valor del BOOLEANO... ' + isButtonEnabled.toString());
-                                     if ( _formKey.currentState.validate() ) { }
-                                      _verificarConexionInternet(context);
-                                  }
-                                 :
-                                null,
-                              child: Text('INGRESAR'),
-                            )
-                          ), */
 
                           // Button SALIR
                           /*  ********************************************************************  */
@@ -258,7 +277,7 @@ class _LoginState extends State<Login> {
   Widget btnCerrar(BuildContext context) {
     return InkWell(
       onTap: () {
-        showAlertDialog_CerrarSesion(context, 'Mensaje', 'Desea cerrar la aplicación.');
+        showAlertDialogCerrarsesion(context, 'Mensaje', 'Desea cerrar la aplicación.');
       },
       child: Center(
         child: Text("CLOSE",
@@ -300,7 +319,7 @@ class _LoginState extends State<Login> {
     }
   }
 
-_verificarConexionInternet(BuildContext context) async {
+verificarConexionInternet(BuildContext context) async {
 
 
     int opc = 0;
@@ -311,7 +330,7 @@ _verificarConexionInternet(BuildContext context) async {
     } else if (connectivityResult == ConnectivityResult.wifi) {
       opc = 2;
     } else {
-      showAlertDialog(context, 'Importante', 'No puede conectarse. Por favor, compruebe la conexión a Internet');
+      showAlertDialog(context, 'Error', 'No puede conectarse. Por favor, compruebe la conexión a Internet');
       opc = 0;
     }
 
@@ -327,7 +346,6 @@ _verificarConexionInternet(BuildContext context) async {
 
     setState(() {
     isButonDisabled=true; 
-/*     tituloBoton = 'Procesando ...'; */
     });
     LoginModel usLogueadoModel = new LoginModel();
     String msj = '';

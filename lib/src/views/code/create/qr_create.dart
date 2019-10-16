@@ -133,9 +133,7 @@ class _QRCreateState extends State<QRCreate> {
                               }
                             )
                           );
-                          //limpiarCampos();
                         }
-
                       },
                       icon: Icon(Icons.save),
                       label: Text('Crear QR'),
