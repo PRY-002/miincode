@@ -27,8 +27,6 @@ class _HistoryState extends State<History> {
   int idUsu;
 
   Future<String> loadCodigos(int idUsuario) async {
-    
-
    try {
       final url = urlCodigosListXIdUsuario + idUsuario.toString();
       final resp = await http.get(Uri.encodeFull(url), headers: {"Accept": "application/json"});

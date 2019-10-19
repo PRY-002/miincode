@@ -7,6 +7,8 @@ import 'package:logger/logger.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
 import 'package:miincode/src/models/usuario_registrar_model.dart';
+import 'package:miincode/src/models/usuario_search_model.dart';
+import 'package:miincode/src/models/usuarios.dart';
 import 'package:miincode/src/providers/ws.dart';
 import 'package:miincode/src/utils/utils.dart';
 import 'package:http/http.dart' as http;
@@ -142,7 +144,7 @@ class _LoginEasyState extends State<LoginEasy> {
                           print('presionaste el boton... Siguiente.');
                           
                           // Valida si el usuario esta registrado o no
-                          verificarRegistro(emailController.text);
+                          searchUserByEmail(emailController.text);
 
                           // Si el usuario NO esta registrado, se le envía al correo su CODIGO de acceso.
                           if ( !usuarioRegistradoEstado ) {
@@ -223,13 +225,24 @@ class _LoginEasyState extends State<LoginEasy> {
     );
   }
 
+  Future<Usuarios> searchUserByEmail(String email) async {
+    /* Servicio REST que devuelva TRUE or FALSE si el correo esta registrado o no. Ese valor se almacenará en la variable 'usuarioRegistradoEstado' */
+    String url = urlSearchUserByEmail + email;
+    final resp = await http.get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+    
+    Usuarios us = new Usuarios();
 
-  verificarRegistro(String email) {
-    /*
-      Servicio REST que devuelva TRUE or FALSE si el correo esta registrado o no.
-      Ese valor se almacenará en la variable 'usuarioRegistradoEstado'
-    */
-    return true;
+    if (resp.statusCode < 200 || resp.statusCode > 400 || json == null) {
+        logger.w(throw new Exception("ERROR! El servicio presento un error en la conexión: "+resp.statusCode.toString()));
+    }
+
+    var extracData = json.decode(resp.body);
+     print(' *********************  extracData["data"]'+extracData["data"].toString());
+    us = extracData["data"];
+    print('.--------------' + us.email);
+    print('.--------------' + us.toString());
+
+    return us;
   }
 
   registrarUsuario(BuildContext context, String _email, String _password) async {
@@ -274,7 +287,7 @@ class _LoginEasyState extends State<LoginEasy> {
 
     final smtpServer = gmail(username, password);
     final message = Message()
-      ..from = Address(username, 'Victor Canta')
+      ..from = Address(username, 'Invitación a MiinCode')
       ..recipients.add(emailController.text)
       //..ccRecipients.addAll(['destCc1@example.com', 'destCc2@example.com'])
       //..bccRecipients.add(Address('bccAddress@example.com'))

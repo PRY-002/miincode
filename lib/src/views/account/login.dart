@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:logger/logger.dart';
-import 'package:miincode/src/models/login_model.dart';
+import 'package:miincode/src/models/usuarios.dart';
 import 'package:miincode/src/providers/ws.dart';
 import 'package:miincode/src/utils/utils_conectividad.dart';
 
@@ -350,7 +350,8 @@ verificarConexionInternet(BuildContext context) async {
     setState(() {
     isButonDisabled=true; 
     });
-    LoginModel usLogueadoModel = new LoginModel();
+    //LoginModel usLogueadoModel = new LoginModel();
+    Usuarios usLogueadoModel = new Usuarios();
     String msj = '';
 
     try {
@@ -366,10 +367,14 @@ verificarConexionInternet(BuildContext context) async {
         usLogueadoModel.password = encrypted.base64;
       }
 
+
+      print("1 "+usLogueadoModel.password + " 2 "+ usLogueadoModel.email);
+
+      //String datosJson = loginToJson(usLogueadoModel);
       String datosJson = loginToJson(usLogueadoModel);
       var url = urlLogin;
       var response = await http.post( url, headers: {"Content-Type": "application/json"}, body: datosJson );      
-      var  extractData = json.decode(response.body);
+      var extractData = json.decode(response.body);
 
       if ( response.statusCode == 200 ) {
         // Almacena Datos en Shared Preference --------------------

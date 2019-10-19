@@ -1,11 +1,9 @@
 import 'dart:convert';
 
-Usuarios usuariosFromJson(String str) => Usuarios.fromJson(json.decode(str));
-String usuariosToJson(Usuarios data) => json.encode(data.toJson());
-String loginToJson(Usuarios data) => json.encode(data.toJsonLogin());
+UsuarioSearchModel usuarioSearchModelFromJson(String str) => UsuarioSearchModel.fromJson(json.decode(str));
+String usuarioSearchModelToJson(UsuarioSearchModel data) => json.encode(data.toJson());
 
-class Usuarios {  
-
+class UsuarioSearchModel {  
     int id;
     String uid;
     String email;
@@ -21,14 +19,11 @@ class Usuarios {
     String fec_actualizacion;
     bool estado;
     int perfiles_id;
-    String password;
 
-
-    Usuarios({
+    UsuarioSearchModel({
       this.id,
       this.uid,
       this.email,
-      this.password,     
       this.nombres,
       this.apepat,
       this.apemat,
@@ -43,8 +38,8 @@ class Usuarios {
       this.perfiles_id
     });
 
-    factory Usuarios.fromJson(Map<String, dynamic> json) {
-      return Usuarios( 
+    factory UsuarioSearchModel.fromJson(Map<String, dynamic> json) {
+      return UsuarioSearchModel( 
         id                 : json['id'],
         uid                : json['uid'],
         email              : json['email'],
@@ -80,21 +75,4 @@ class Usuarios {
       'estado'             : estado,
       'perfiles_id'        : perfiles_id,
   };
-
-  factory Usuarios.fromJsonLogin(Map<String, dynamic> json) {
-    return Usuarios( 
-        id                 : json['id'],
-        email              : json['email'],
-        password           : json['password']
-      );
-  }
-  Map<String, dynamic> toJsonLogin() => {
-    
-      //id                 : json['id'],
-      'email'              : email,
-      'password'           : password
-  };   
-
-
-
 }
