@@ -221,7 +221,7 @@ class _LoginState extends State<Login> {
                                        }
                                         verificarConexionInternet(context);
                                     },
-                                child: Text(tituloBoton),
+                                child: Text(tituloBoton, style: TextStyle(fontSize: 20)),
                                 disabledColor: Colors.grey,
                                 disabledTextColor: Colors.white,
                               ),
@@ -231,22 +231,25 @@ class _LoginState extends State<Login> {
                           // Button SALIR
                           /*  ********************************************************************  */
                           Expanded(
-                              flex: 4,
-                              child: Container(
-                                padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                child: InkWell(
-                                  child: Container(
-                                    height: double.parse('50.0'),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      borderRadius: BorderRadius.circular(6.0),
-                                    ),
-                                    child: Material(
-                                        color: Colors.transparent,
-                                        child: btnCerrar(context)),
-                                  ),
+                            flex: 4,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                              child: AbsorbPointer(
+                                absorbing: isButonDisabled,
+                                child: RaisedButton(
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                                  color: Colors.red,
+                                  textColor: colorTexto,
+                                  onPressed: (){
+                                    showAlertDialogCerrarsesion(context, 'Mensaje', 'Desea cerrar la aplicación ?');                                        
+                                  },
+                                  child: Text('Salir', style: TextStyle(fontSize: 20),),
+                                  disabledColor: Colors.grey,
+                                  disabledTextColor: Colors.white,
                                 ),
-                              ))
+                              ),
+                            )
+                          ),
                         ],
                       ),
                     ),

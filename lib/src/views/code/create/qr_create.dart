@@ -6,12 +6,9 @@ import 'package:logger/logger.dart';
 import 'package:miincode/src/models/codigo_model.dart';
 import 'package:miincode/src/models/producto_model.dart';
 import 'package:miincode/src/providers/codigos_provider.dart';
-import 'package:miincode/src/providers/database_helper.dart';
 import 'package:miincode/src/utils/utils.dart';
-import 'package:miincode/src/utils/utils_conectividad.dart';
 import 'package:miincode/src/views/code/create/qr_code_creater.dart';
 import 'package:miincode/src/widgets/appbar.dart';
-import 'package:miincode/src/widgets/for_create_qr.dart';
 
 CodigosProvider cp = new CodigosProvider();
 CodigoModel cm = new CodigoModel();
@@ -24,6 +21,9 @@ TextEditingController controlerQRLink = new TextEditingController();
 TextEditingController controlerQRPhone = new TextEditingController();
 TextEditingController controlerQRSendSms = new TextEditingController();
 TextEditingController controlerQRSendEmail = new TextEditingController();
+String msj;
+
+ExpandableController textoController = new ExpandableController();
 
 class QRCreate extends StatefulWidget {
 
@@ -34,6 +34,7 @@ class QRCreate extends StatefulWidget {
 
 class _QRCreateState extends State<QRCreate> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey _keyExpandableTexto = GlobalKey();
 
   ProductoModel producto = new ProductoModel();
   File foto;
@@ -49,10 +50,11 @@ class _QRCreateState extends State<QRCreate> {
 
   @override
   Widget build(BuildContext context) {
-    spReturnEmail().then((value){
+/*     spReturnEmail().then((value){
       DatabaseHelper.db.pintaDatosRegistradosDeUsuario(value);
-    });    
+    }); */
     
+    limpiarCampos();
     return Scaffold(
         appBar:  myAppBar(context, 'CREAR CÓDIGO QR'),
         body: Form(
@@ -63,11 +65,12 @@ class _QRCreateState extends State<QRCreate> {
               padding: EdgeInsets.all(5),
               scrollDirection: Axis.vertical,
               children: <Widget>[
+                
                 cardQrTexto(context, controlerQRTexto, foto),
                 cardQrLink(context, controlerQRLink, foto),
                 cardQrPhone(context, controlerQRPhone, foto),
                 cardQrSendSms(context, controlerQRSendSms, foto),
-                cardQrSendEmail(context, controlerQRSendEmail, foto)
+                cardQrSendEmail(context, controlerQRSendEmail, foto),
               ],
             ),
           ),
@@ -80,8 +83,8 @@ class _QRCreateState extends State<QRCreate> {
       child: Container(
         padding: EdgeInsets.all(5.0),
         child: ExpandablePanel(
-          tapBodyToCollapse: false,
           headerAlignment: ExpandablePanelHeaderAlignment.center,
+          tapBodyToCollapse: true,
           // Cabecera ----- TEXTO
           header: Container(
             height: 30,
@@ -93,7 +96,8 @@ class _QRCreateState extends State<QRCreate> {
               onPressed: (){},
             )
           ),
-          //collapsed: Text('CUERPO', softWrap: true, maxLines: 1, overflow: TextOverflow.ellipsis),
+          tapHeaderToExpand: true,
+          hasIcon: true,
           expanded: Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 2),
             child: Container(
@@ -129,7 +133,8 @@ class _QRCreateState extends State<QRCreate> {
                           Navigator.of(context).push(
                               MaterialPageRoute<Null>(
                                 builder: (BuildContext context) {
-                                return QRCodeCreator(tipo: 'controlerQR_Texto', mensaje: controlerQRTexto, file: foto);
+                                msj = controlerQRTexto.text;
+                                return QRCodeCreator(tipo: 'controlerQR_Texto', mensaje: msj, file: foto);
                               }
                             )
                           );
@@ -145,12 +150,10 @@ class _QRCreateState extends State<QRCreate> {
               )
               ),
           ),
-          tapHeaderToExpand: false,
-          hasIcon: true,
+
         ),
       ),
     );
-    
   }
 
   Widget cardQrLink(BuildContext context, TextEditingController controlerQRLink, File foto) {
@@ -158,7 +161,7 @@ class _QRCreateState extends State<QRCreate> {
       child: Container(
         padding: EdgeInsets.all(5.0),
         child: ExpandablePanel(
-          tapBodyToCollapse: false,
+          tapBodyToCollapse: true,
           headerAlignment: ExpandablePanelHeaderAlignment.center,
           // Cabecera ----- TEXTO
           header: Container(
@@ -208,7 +211,8 @@ class _QRCreateState extends State<QRCreate> {
                         Navigator.of(context).push(
                             MaterialPageRoute<Null>(
                               builder: (BuildContext context) {
-                              return QRCodeCreator(tipo: 'controlerQR_Link', mensaje: controlerQRLink, file: foto);
+                                msj = controlerQRTexto.text;
+                              return QRCodeCreator(tipo: 'controlerQR_Link', mensaje: msj, file: foto);
                             }
                           )
                         );
@@ -222,8 +226,8 @@ class _QRCreateState extends State<QRCreate> {
                 ],
               )
               ),
-          ), //Text('ExpandablePaneltiene una serie de propiedades para personalizar su comportamiento, pero está restringido al tener un título en la parte superior y un icono de expansión que se muestra como una flecha hacia abajo (a la derecha o a la izquierda). Si eso no es suficiente, se puede implementar widgets personalizados ampliables mediante el uso de una combinación de Expandable, ExpandableNotifiery ExpandableButton:', softWrap: true, ),
-          tapHeaderToExpand: false,
+          ),
+          tapHeaderToExpand: true,
           hasIcon: true,
         ),
       ),
@@ -284,7 +288,8 @@ class _QRCreateState extends State<QRCreate> {
                         Navigator.of(context).push(
                             MaterialPageRoute<Null>(
                               builder: (BuildContext context) {
-                              return QRCodeCreator(tipo: 'controlerQR_Phone', mensaje: controlerQRPhone, file: foto);
+                                msj = controlerQRPhone.text;
+                              return QRCodeCreator(tipo: 'controlerQR_Phone', mensaje: msj, file: foto);
                             }
                           )
                         );
@@ -299,7 +304,7 @@ class _QRCreateState extends State<QRCreate> {
               )
               ),
           ), //Text('ExpandablePaneltiene una serie de propiedades para personalizar su comportamiento, pero está restringido al tener un título en la parte superior y un icono de expansión que se muestra como una flecha hacia abajo (a la derecha o a la izquierda). Si eso no es suficiente, se puede implementar widgets personalizados ampliables mediante el uso de una combinación de Expandable, ExpandableNotifiery ExpandableButton:', softWrap: true, ),
-          tapHeaderToExpand: false,
+          tapHeaderToExpand: true,
           hasIcon: true,
         ),
       ),
@@ -361,7 +366,8 @@ class _QRCreateState extends State<QRCreate> {
                         Navigator.of(context).push(
                             MaterialPageRoute<Null>(
                               builder: (BuildContext context) {
-                              return QRCodeCreator(tipo: 'controlerQR_SendSms', mensaje: controlerQRSendSms, file: foto);
+                                msj = controlerQRSendSms.text;
+                              return QRCodeCreator(tipo: 'controlerQR_SendSms', mensaje: msj, file: foto);
                             }
                           )
                         );
@@ -376,7 +382,7 @@ class _QRCreateState extends State<QRCreate> {
               )
               ),
           ), //Text('ExpandablePaneltiene una serie de propiedades para personalizar su comportamiento, pero está restringido al tener un título en la parte superior y un icono de expansión que se muestra como una flecha hacia abajo (a la derecha o a la izquierda). Si eso no es suficiente, se puede implementar widgets personalizados ampliables mediante el uso de una combinación de Expandable, ExpandableNotifiery ExpandableButton:', softWrap: true, ),
-          tapHeaderToExpand: false,
+          tapHeaderToExpand: true,
           hasIcon: true,
         ),
       ),
@@ -450,7 +456,8 @@ class _QRCreateState extends State<QRCreate> {
                           Navigator.of(context).push(
                               MaterialPageRoute<Null>(
                                 builder: (BuildContext context) {
-                                return QRCodeCreator(tipo: 'controlerQR_SendEmail', mensaje: controlerQRSendEmail, file: foto);
+                                  msj = controlerQRSendEmail.text;
+                                return QRCodeCreator(tipo: 'controlerQR_SendEmail', mensaje: msj, file: foto);
                               }
                             )
                           );
@@ -466,7 +473,7 @@ class _QRCreateState extends State<QRCreate> {
               )
               ),
           ), //Text('ExpandablePaneltiene una serie de propiedades para personalizar su comportamiento, pero está restringido al tener un título en la parte superior y un icono de expansión que se muestra como una flecha hacia abajo (a la derecha o a la izquierda). Si eso no es suficiente, se puede implementar widgets personalizados ampliables mediante el uso de una combinación de Expandable, ExpandableNotifiery ExpandableButton:', softWrap: true, ),
-          tapHeaderToExpand: false,
+          tapHeaderToExpand: true,
           hasIcon: true,
         ),
       ),

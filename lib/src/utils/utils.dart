@@ -12,11 +12,7 @@ var loggerNoStack = Logger(printer: PrettyPrinter(methodCount: 0));
 // Popup de Mensaje de Error - Muestra mensaje + un boton de cierre del alert
 showAlertDialog(BuildContext context, String titulo, String mensaje) {
   Widget okButton = FlatButton(
-    child: Icon(
-      Icons.check,
-      color: Colors.green,
-      size: 40,
-    ),
+    child: Text( 'OK', style: TextStyle(color: Colors.green, fontSize: 30,) ),
     onPressed: (){
       Navigator.of(context).pop();
     }
@@ -55,7 +51,7 @@ showAlertDialog(BuildContext context, String titulo, String mensaje) {
   );
 
   showDialog(
-    context: context,
+    context: context, 
     builder: (BuildContext context) {
       return alert;
     }
@@ -65,11 +61,7 @@ showAlertDialog(BuildContext context, String titulo, String mensaje) {
 // Popup de Mensaje de Exito - Muestra mensaje + un boton de cierre del alert - Post cierre de alert redirecciona a la pagina indicada
 showAlertDialogRedireccionable(BuildContext context, String titulo, String mensaje, String page) {
   Widget okButton = FlatButton(
-    child: Icon(
-      Icons.check,
-      color: Colors.green,
-      size: 40,
-    ),
+    child: Text( 'OK', style: TextStyle(color: Colors.green, fontSize: 30,) ),
     onPressed: (){
       Navigator.of(context).pop();
       Navigator.pushReplacementNamed(context, page);
@@ -119,22 +111,14 @@ showAlertDialogRedireccionable(BuildContext context, String titulo, String mensa
 // El redireccionamiento se ejecuta cuando responde NO <------------------
 showAlertDialogRedireccionableOpc_siNO(BuildContext context, String titulo, String mensaje, String page) {
   Widget siButton = FlatButton(
-    child: Icon(
-      Icons.check,
-      color: Colors.green,
-      size: 40,
-    ),
+    child: Text( 'SI', style: TextStyle(color: Colors.green, fontSize: 30,) ),
     onPressed: (){
       Navigator.of(context).pop();
     }
   );
 
   Widget noButton = FlatButton(
-    child: Icon(
-      Icons.close,
-      color: Colors.green,
-      size: 40,
-    ),
+    child: Text( 'NO', style: TextStyle(color: Colors.red, fontSize: 30,) ),
     onPressed: (){
       Navigator.of(context).pop();
       Navigator.pushReplacementNamed(context, page);
@@ -185,11 +169,7 @@ showAlertDialogRedireccionableOpc_siNO(BuildContext context, String titulo, Stri
 // El redireccionamiento se ejecuta cuando responde SI <------------------
 showAlertDialogRedireccionableOpc_SIno(BuildContext context, String titulo, String mensaje, String page) {
   Widget siButton = FlatButton(
-    child: Icon(
-      Icons.check,
-      color: Colors.green,
-      size: 40,
-    ),
+    child: Text( 'SI', style: TextStyle(color: Colors.green, fontSize: 30,) ),
     onPressed: (){
       Navigator.of(context).pop();
       Navigator.pushReplacementNamed(context, page);
@@ -197,11 +177,7 @@ showAlertDialogRedireccionableOpc_SIno(BuildContext context, String titulo, Stri
   );
 
   Widget noButton = FlatButton(
-    child: Icon(
-      Icons.close,
-      color: Colors.green,
-      size: 40,
-    ),
+    child: Text( 'NO', style: TextStyle(color: Colors.red, fontSize: 30,) ),
     onPressed: (){
       Navigator.of(context).pop();
     }
@@ -251,22 +227,14 @@ showAlertDialogRedireccionableOpc_SIno(BuildContext context, String titulo, Stri
 // Cierra la aplicación al 100% (Solo debe utilizarse al cerrar desde el Login.)
 showAlertDialogCerrarsesion(BuildContext context, String titulo, String mensaje) {
   Widget siButton = FlatButton(
-    child: Icon(
-      Icons.check,
-      color: Colors.green,
-      size: 40,
-    ),
-    onPressed: (){
-      Navigator.of(context).pop();
+    child: Text( 'SI', style: TextStyle(color: Colors.green, fontSize: 30,) ),
+    onPressed: (){ 
+      Navigator.of(context).pop(); 
       exit(0);
     }
   );
   Widget noButton = FlatButton(
-    child: Icon(
-      Icons.close,
-      color: Colors.green,
-      size: 40,
-    ),
+    child: Text( 'NO', style: TextStyle(color: Colors.red, fontSize: 30,) ),
     onPressed: (){
       Navigator.of(context).pop();
     }

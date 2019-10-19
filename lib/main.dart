@@ -4,6 +4,7 @@ import 'package:miincode/src/providers/database_helper.dart';
 import 'package:miincode/src/services/service_locator.dart';
 import 'package:miincode/src/utils/utils_conectividad.dart';
 import 'package:miincode/src/views/account/login.dart';
+import 'package:miincode/src/views/account/login_easy.dart';
 import 'package:miincode/src/views/account/login_state.dart';
 import 'package:miincode/src/views/account/register.dart';
 import 'package:miincode/src/views/code/fetchpost.dart';
@@ -46,7 +47,7 @@ class MyApp extends StatelessWidget {
               if ( state.isLoading()) {
                 return Home();
               } else {
-                return Login(); // MyAppFetchPost(); 
+                return LoginEasy(); // Login();
               }
             },
             'login'   : (BuildContext context) => Login(),

@@ -58,13 +58,9 @@ class _HistoryState extends State<History> {
 
   _funcionObtieneID() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-   
     setState(() {
-       idUsu = sp.getInt('spId');
-       
-        
+       idUsu = sp.getInt('spId'); 
     });
-print('-------------> 002' + idUsu.toString());
     this.loadCodigos(idUsu);
   }
 
@@ -172,7 +168,7 @@ print('-------------> 002' + idUsu.toString());
 Widget recortaMsj(String msj) {
   String _msj;
   if ( msj.length > 80 ) {
-    _msj = msj.substring(0, 80) + ' ...';
+    _msj = msj.substring(0, 70) + ' ...';
   } else {
     _msj = msj;
   }

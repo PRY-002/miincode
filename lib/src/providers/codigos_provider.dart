@@ -17,10 +17,8 @@ import 'package:http_parser/http_parser.dart';
 String _email;
 String _idUsuario;
 
-
-//String _urlCloudinary = 'https://api.cloudinary.com/v1_1/dfdy5e4tt/image/upload?upload_preset=h86ampvf';
 String _urlCloudinary = 'https://api.cloudinary.com/v1_1/dfdy5e4tt/image/upload?upload_preset=h86ampvf';
-String _urlApiBase = 'https://api.cloudinary.com/v1_1/dfdy5e4tt';
+String _urlCloudinary_ = 'https://miincode.herokuapp.com/api/cloud/upload';
 
 /* ----- LOGGER ---------------- */
 var logger = Logger(printer: PrettyPrinter());
@@ -113,6 +111,30 @@ class CodigosProvider extends StatefulWidget {
     }
   }
 
+  Future<String> subirImagenCloudinary (File image) async {
+    try {
+      var url = Uri.parse(_urlCloudinary_);
+      final mimetype = mime(image.path).split('/');
+      final imageUploadRequest = http.MultipartRequest('POST', url);
+      final file = await http.MultipartFile.fromPath('name-of-input-key', image.path, contentType: MediaType(mimetype[0], mimetype[1]));
+
+      imageUploadRequest.files.add(file);
+
+      final streamResponse = await imageUploadRequest.send();
+      final resp = await http.Response.fromStream(streamResponse);
+
+      if ( resp.statusCode != 200 && resp.statusCode != 201 ) {
+        return null;
+      } else { 
+        final respData = jsonDecode(resp.body);
+        print('Imagen subida\n' + respData['secure_url']);
+        return respData['secure_url'];
+      }
+    } catch (e) {
+      logger.w('ERROR al subir la imagen:\n' + e.toString());
+    }
+  }
+
   verificarConexionInternetSubirImagen(BuildContext context, File imagen) async {
     int opc = 0;
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -126,7 +148,7 @@ class CodigosProvider extends StatefulWidget {
     }
 
     if (opc != 0) {
-        String foto = await subirImagen(imagen);
+        String foto = await subirImagenCloudinary(imagen);
         return foto;
     } else {
       return 'No hay Internet';

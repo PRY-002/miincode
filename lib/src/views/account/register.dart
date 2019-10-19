@@ -324,6 +324,7 @@ class _RegisterState extends State<Register> {
                                       textAlign: TextAlign.center,
                                       controller: controllerDni,
                                       decoration: InputDecoration(
+                                        hintText: '88888888',
                                           counterText: "",
                                           border: OutlineInputBorder(),
                                           labelText: 'DNI'),
@@ -488,6 +489,7 @@ class _RegisterState extends State<Register> {
                                 textAlign: TextAlign.center,
                                 controller: controllerNroMovil,
                                 decoration: InputDecoration(
+                                  hintText: '999999999',
                                     counterText: "",
                                     border: OutlineInputBorder(),
                                     labelText: 'Número Móvil'),
@@ -544,9 +546,9 @@ class _RegisterState extends State<Register> {
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
                                 color: Colors.red,
                                 onPressed: (){
-                                  showAlertDialogRedireccionableOpc_siNO( context, 'Mensaje', 'Desea crear otro usuario.', 'login');
+                                  showAlertDialogRedireccionableOpc_siNO( context, 'Mensaje', 'Desea crear usuario ?', 'login');
                                 },
-                                child: Text('CLOSE', style: TextStyle(color: Colors.white)),
+                                child: Text('CERRAR', style: TextStyle(color: Colors.white)),
                               )
                             )
                           )
@@ -609,7 +611,7 @@ class _RegisterState extends State<Register> {
       usRegistrarModel.apepat = _apePat.text;
       usRegistrarModel.apemat = _apeMat.text;
       usRegistrarModel.genero = _genero;
-      usRegistrarModel.dni = _dni.text;
+      usRegistrarModel.dni = _dni.text == '' ? '88888888' : _dni.text;
 
       _urlFoto = await cp.verificarConexionInternetSubirImagen(context, foto); // SUBE LA FOTO
         if (_urlFoto == null || _urlFoto.isEmpty || _urlFoto == '') {
@@ -619,7 +621,7 @@ class _RegisterState extends State<Register> {
           showAlertDialog(context, 'Error', 'No puede conectarse. Por favor, compruebe la conexión a Internet');
         } else {          
           usRegistrarModel.url_foto = _urlFoto;
-          usRegistrarModel.nro_movil = _nroMovil.text;
+          usRegistrarModel.nro_movil = _nroMovil.text == '' ? '999999999' : _nroMovil.text;
           usRegistrarModel.fec_creacion = _fecCreacion;
           usRegistrarModel.fec_actualizacion = _fecActualizacion;
           usRegistrarModel.estado = _estado;

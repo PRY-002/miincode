@@ -31,7 +31,7 @@ String nombreImgQRCode = 'QRCodeGenerado.png';
 class QRCodeCreator extends StatefulWidget {
 
   final String tipo;
-  final TextEditingController mensaje;
+  final String mensaje;
   final File file;
 
 QRCodeCreator(
@@ -68,7 +68,7 @@ class _QRCodeCreator extends State<QRCodeCreator> {
 
   // ---------------------------------------------------------------------------------------
   final String tipo;
-  final TextEditingController msj;
+  final String msj;
   final File fotoImage;
 
   _QRCodeCreator(
@@ -77,7 +77,7 @@ class _QRCodeCreator extends State<QRCodeCreator> {
       @required this.msj,
       @required this.fotoImage});
 
-  get mensaje => msj.text;
+  get mensaje => msj;
   get tip => tipo;
 
   @override
@@ -129,12 +129,15 @@ class _QRCodeCreator extends State<QRCodeCreator> {
                 child: RepaintBoundary(
                   key: _renderObjectKey,
                   child: QrImage(
-                    embeddedImage: AssetImage('assets/icon/icon_miincode.png'),
-                    backgroundColor: Colors.white,
-                    padding: EdgeInsets.all(5),
-                    version: QrVersions.auto,
-                    constrainErrorBounds: false,                    
                     data: mensaje,
+                    version: QrVersions.auto,
+                    gapless: false,
+                    embeddedImage: AssetImage('assets/icon/icon_miincode.png'),
+                    //embeddedImageStyle: QrEmbeddedImageStyle(size: Size(80, 80)),
+                    
+                    backgroundColor: Colors.white,
+                    //padding: EdgeInsets.all(5),
+                    constrainErrorBounds: false,                    
                     //size: 100,
                   ),
                 ),
@@ -319,7 +322,8 @@ class _QRCodeCreator extends State<QRCodeCreator> {
         await file.writeAsBytes(pngBytes);
 
        if (file != null) { // Valida si hay o no imagen 
-          codigos.ruta_url = await codigoProvider.subirImagen(file);  // Sube img a Cloudinary
+          //codigos.ruta_url = await codigoProvider.subirImagen(file);  // Sube img a Cloudinary
+          codigos.ruta_url = await codigoProvider.subirImagenCloudinary(file);  // Sube img a Cloudinary
         } 
       /* FIN Guardar IMAGEN en CLOUDINARY */
 

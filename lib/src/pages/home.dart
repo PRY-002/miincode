@@ -1,13 +1,9 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:miincode/src/views/code/ajustes.dart';
 import 'package:miincode/src/views/code/create/qr_create.dart';
 import 'package:miincode/src/views/code/fetchpost.dart';
 import 'package:miincode/src/views/code/history.dart';
 import 'package:miincode/src/views/code/read/code_reader.dart';
-import 'package:countdown_flutter/countdown_flutter.dart';
 
 var logger = Logger(
   printer: PrettyPrinter(),

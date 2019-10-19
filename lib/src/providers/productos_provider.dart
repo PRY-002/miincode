@@ -1,14 +1,5 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; 
-import 'package:http_parser/http_parser.dart';
 import 'package:logger/logger.dart';
-import 'package:miincode/src/models/producto_model.dart';
-import 'package:miincode/src/models/usuario_model.dart';
-import 'package:miincode/src/providers/database_helper.dart';
-import 'package:miincode/src/utils/utils_conectividad.dart';
-import 'package:mime_type/mime_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
