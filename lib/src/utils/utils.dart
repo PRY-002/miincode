@@ -9,8 +9,9 @@ var logger = Logger(printer: PrettyPrinter());
 var loggerNoStack = Logger(printer: PrettyPrinter(methodCount: 0));
 /* ----- LOGGER ---------------- */
 
+
 // Popup de Mensaje de Error - Muestra mensaje + un boton de cierre del alert
-showAlertDialog(BuildContext context, String titulo, String mensaje) {
+Widget showAlertDialog(BuildContext context, String titulo, String mensaje) {
   Widget okButton = FlatButton(
     child: Text( 'OK', style: TextStyle(color: Colors.green, fontSize: 30,) ),
     onPressed: (){
@@ -59,7 +60,7 @@ showAlertDialog(BuildContext context, String titulo, String mensaje) {
 }
 
 // Popup de Mensaje de Exito - Muestra mensaje + un boton de cierre del alert - Post cierre de alert redirecciona a la pagina indicada
-showAlertDialogRedireccionable(BuildContext context, String titulo, String mensaje, String page) {
+Widget showAlertDialogRedireccionable(BuildContext context, String titulo, String mensaje, String page) {
   Widget okButton = FlatButton(
     child: Text( 'OK', style: TextStyle(color: Colors.green, fontSize: 30,) ),
     onPressed: (){
@@ -109,7 +110,7 @@ showAlertDialogRedireccionable(BuildContext context, String titulo, String mensa
 }
 
 // El redireccionamiento se ejecuta cuando responde NO <------------------
-showAlertDialogRedireccionableOpc_siNO(BuildContext context, String titulo, String mensaje, String page) {
+Widget showAlertDialogRedireccionableOpc_siNO(BuildContext context, String titulo, String mensaje, String page) {
   Widget siButton = FlatButton(
     child: Text( 'SI', style: TextStyle(color: Colors.green, fontSize: 30,) ),
     onPressed: (){
@@ -167,7 +168,7 @@ showAlertDialogRedireccionableOpc_siNO(BuildContext context, String titulo, Stri
 }
 
 // El redireccionamiento se ejecuta cuando responde SI <------------------
-showAlertDialogRedireccionableOpc_SIno(BuildContext context, String titulo, String mensaje, String page) {
+Widget showAlertDialogRedireccionableOpc_SIno(BuildContext context, String titulo, String mensaje, String page) {
   Widget siButton = FlatButton(
     child: Text( 'SI', style: TextStyle(color: Colors.green, fontSize: 30,) ),
     onPressed: (){

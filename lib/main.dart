@@ -47,12 +47,13 @@ class MyApp extends StatelessWidget {
               if ( state.isLoading()) {
                 return Home();
               } else {
-                return LoginEasy(); //Login();
+                return Login();
               }
             },
-            'login'   : (BuildContext context) => Login(),
-            'register': (BuildContext context) => Register(),
-            'home'    : (BuildContext context) => Home()
+            'login'     : (BuildContext context) => Login(),
+            'register'  : (BuildContext context) => Register(),
+            'home'      : (BuildContext context) => Home(),
+            'logineasy' : (BuildContext context) => LoginEasy(),
           },
         ),
       );

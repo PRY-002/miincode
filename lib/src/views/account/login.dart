@@ -265,7 +265,13 @@ class _LoginState extends State<Login> {
                     Container(
                         alignment: Alignment.center,
                         height: 20,
-                        child: btnShowRegister(context))
+                        child: btnShowRegister(context)),
+                    SizedBox(height: 5.0),
+                    Container(
+                        alignment: Alignment.center,
+                        height: 20,
+                        child: btnShowLoginEasy(context))
+                        
                     /*  ********************************************************************  */
                   ],
                 ))
@@ -299,6 +305,16 @@ class _LoginState extends State<Login> {
       borderSide:
           BorderSide(color: colorNegro, style: BorderStyle.solid, width: 0.8),
       onPressed: () => Navigator.pushReplacementNamed(context, 'register'),
+    );
+  }
+
+  Widget btnShowLoginEasy(BuildContext context) {
+    return RaisedButton(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+      color: Colors.green,
+      textColor: colorTexto,
+      onPressed: () => Navigator.pushReplacementNamed(context, 'logineasy'),
+      child: Text('Login Facil', style: TextStyle(fontSize: 15),),
     );
   }
 
