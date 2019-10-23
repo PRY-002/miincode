@@ -8,7 +8,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
 import 'package:miincode/qr_flutter.dart';
-import 'package:miincode/src/models/codigos.dart';
+import 'package:miincode/src/models/codigos_model.dart';
 import 'package:miincode/src/providers/codigos_provider.dart';
 import 'package:miincode/src/services/calls_and_messages_service.dart';
 import 'package:miincode/src/services/service_locator.dart';
@@ -61,7 +61,7 @@ class _QRCodeCreator extends State<QRCodeCreator> {
   final CallsAndMessagesService service = locator<CallsAndMessagesService>();
 
   GlobalKey _renderObjectKey = GlobalKey();
-  Codigos codigos = new Codigos();
+  CodigosModel codigos = new CodigosModel();
   final codigoProvider = new CodigosProvider();
 
   File foto;
@@ -84,7 +84,6 @@ class _QRCodeCreator extends State<QRCodeCreator> {
   Widget build(BuildContext context) {
     validacionEstado(){
     if ( mensaje == '' || mensaje == null) {
-      print('NO ha indicado un Mensaje...');
       setState(() {
         isButonDisabled = true;
       });
@@ -322,16 +321,15 @@ class _QRCodeCreator extends State<QRCodeCreator> {
         await file.writeAsBytes(pngBytes);
 
        if (file != null) { // Valida si hay o no imagen 
-          //codigos.ruta_url = await codigoProvider.subirImagen(file);  // Sube img a Cloudinary
           codigos.ruta_url = await codigoProvider.subirImagenCloudinary(file);  // Sube img a Cloudinary
         } 
       /* FIN Guardar IMAGEN en CLOUDINARY */
 
-      // Carga de datos a la entidad para ser enviados a la base de datos
       codigos.mensaje = mensaje;
       codigos.fec_creacion = DateTime.now().toString();
       codigos.fec_actualizacion = DateTime.now().toString();
       codigos.estado = true;
+      
       SharedPreferences sp = await SharedPreferences.getInstance();
       codigos.usuarios_id = sp.getInt(spId);
       if (codigos.mensaje != null || codigos.mensaje.isNotEmpty || codigos.mensaje != '') {

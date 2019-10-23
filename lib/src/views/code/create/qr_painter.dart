@@ -135,8 +135,6 @@ class QrPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // if the widget has a zero size side then we cannot continue painting.
     if (size.shortestSide == 0) {
-      print('-------------------->'+"-------------------->[QR] WARN: width or height is zero. You should set a 'size' value "
-          "or nest this painter in a Widget that defines a non-zero size");
       return;
     }
     // DEPRECATED: the `emptyColor` property will be removed soon

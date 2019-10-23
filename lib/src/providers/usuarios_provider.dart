@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; 
 import 'package:http_parser/http_parser.dart';
-import 'package:miincode/src/models/usuario_model.dart';
+import 'package:miincode/src/models/usuarios.dart';
 import 'package:miincode/src/utils/utils.dart';
 import 'package:mime_type/mime_type.dart';
 
@@ -11,17 +11,16 @@ class UsuariosProvider {
 
   final String _url = 'https://miincode.firebaseio.com';
 
-  Future<bool> crearUsuario( UsuarioModel usuario) async {
+  Future<bool> crearUsuario( Usuarios usuario) async {
     final url = '$_url/usuarios.json';
-    final resp = await http.post( url, body: usuarioModelToJson(usuario) );
-    final decodedData = json.decode(resp.body);
-//    print('-------------------->'+decodedData);
+    final resp = await http.post( url, body: editToJson(usuario) );
+    //final decodedData = json.decode(resp.body);
     return true;
   }
 
-  Future<bool> editarUsuario( UsuarioModel usuario ) async {
+  Future<bool> editarUsuario( Usuarios usuario ) async {
     final url = '$_url/usuarios/${ usuario.id }.json';
-    final resp = await http.put( url, body: usuarioModelToJson(usuario) );
+    final resp = await http.put( url, body: editToJson(usuario) );
     final decodedData = json.decode(resp.body);
     if ( decodedData != null ) {
       return true;  
@@ -41,58 +40,18 @@ class UsuariosProvider {
     }
   }
 
-  Future<UsuarioModel> obtenerUsuario( BuildContext context, String idUsuario ) async {
+  Future<Usuarios> obtenerUsuario( BuildContext context, String idUsuario ) async {
     final url = '$_url/usuarios/'+ idUsuario +'.json';
     final resp = await http.get(url);
     final decodedData = json.decode(resp.body);
-    UsuarioModel um = decodedData;
+    Usuarios um = decodedData;
     if ( um == null ) { showAlertDialog(context, 'ALERTA', 'NO SE ENCONTRARON DATOS.'); }
     return um;
-  }
-
-/* LISTADO DE USUARIOS ************************************************************ INI */
-/*  Widget obtenerDatosUsuario_xEmail(String email) {
-    return FutureBuilder(
-      future: cargarUsuarios(),
-      builder: (BuildContext context, AsyncSnapshot<List<UsuarioModel>> snapshot) {
-        if ( snapshot.hasData ) {
-          final usuarios = snapshot.data;
-
-          return ListView.builder(
-            itemCount: usuarios.length,
-            itemBuilder: (context, i) => _crearItemUsuarios( context, usuarios[i], email),
-          );
-        } else {
-          return Center( child: CircularProgressIndicator() );
-        }
-      }
-    );
-  }
-*/
-
-  Future<List<UsuarioModel>> cargarUsuarios() async {
-    final url  = '$_url/usuarios.json';  
-    final resp = await http.get(url);
-    final Map<String, dynamic> decodedData = json.decode(resp.body);
-    final List<UsuarioModel> usuarios = new List();
-    
-    if ( decodedData == null ) return [];
-    decodedData.forEach( ( id, prod ){
-      print('--------------------> 6.1.9' + id);
-      final prodTemp = UsuarioModel.fromJson(prod);
-            print('--------------------> 6.2');
-            print('--------------------> 6.2' + prodTemp.id);
-            print('--------------------> 6.2' + prodTemp.id);
-            print('--------------------> 6.2.1'+prodTemp.toString());
-      usuarios.add( prodTemp );
-    });
-    return usuarios;
   }
 
   Future<int> borrarUsuario( String id ) async { 
     final url  = '$_url/usuarios/$id.json';
     final resp = await http.delete(url);
-    print('-------------------->'+ resp.body );
     return 1;
   }
 
@@ -113,14 +72,9 @@ class UsuariosProvider {
     final resp = await http.Response.fromStream(streamResponse);
 
     if ( resp.statusCode != 200 && resp.statusCode != 201) {
-      print('-------------------->Algo salio mal');
-      print('-------------------->'+resp.body);
       return null;
     } else {
       final respData = json.decode(resp.body);
-      print('-------------------->IMAGEN SUBIDA ------------------------------');
-      print('-------------------->'+respData);
-      print('-------------------->respBody'+resp.body);
       return respData['secure_url'];
     }
   }

@@ -57,12 +57,10 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     validacionEstado(){
     if ( _emailController.text.isEmpty || _emailController.text == '') {
-      print('El nombre de usuario esta vacío.');
       setState(() {
         isButonDisabled = true;
       });
     } else if ( _passwordController.text.isEmpty || _passwordController.text == '') {
-      print('La contraseña esta vacía.');
       setState(() {
         isButonDisabled = true;
       });
@@ -213,7 +211,6 @@ class _LoginState extends State<Login> {
                                 color: colorBoton,
                                 textColor: colorTexto,
                                 onPressed: isButonDisabled ? null : (){
-                                      print('Valor del BOOLEANO... ' + isButonDisabled.toString());
                                        if ( !_formKey.currentState.validate() ) { 
                                          setState(() {
                                           isButonDisabled = false; 
@@ -339,16 +336,17 @@ class _LoginState extends State<Login> {
   }
 
 verificarConexionInternet(BuildContext context) async {
-
-
     int opc = 0;
     var connectivityResult = await (Connectivity().checkConnectivity());
-
+    print('---------------------------- connectivityResult: ' + connectivityResult.toString());
     if (connectivityResult == ConnectivityResult.mobile) {
+      print('---------------------------- ConnectivityResult.mobile: ' + ConnectivityResult.mobile.toString());
       opc = 1;
     } else if (connectivityResult == ConnectivityResult.wifi) {
+      print('---------------------------- ConnectivityResult.wifi: ' + ConnectivityResult.wifi.toString());
       opc = 2;
     } else {
+      print('---------------------------- ConnectivityResult.none: ' + ConnectivityResult.none.toString());
       showAlertDialog(context, 'Error', 'No puede conectarse. Por favor, compruebe la conexión a Internet');
       opc = 0;
     }
@@ -357,9 +355,7 @@ verificarConexionInternet(BuildContext context) async {
      // Provider.of<LoginState>(context).login(); /* A.C. COMENTADO POR QUE DEJABA INGRESAR SIN LOGUEAR */
         iniciarSesion(context);
     }
-
   }
-
 
   Future<http.Response> iniciarSesion (BuildContext context) async {
 
@@ -382,9 +378,6 @@ verificarConexionInternet(BuildContext context) async {
         final encrypted = encrypter.encrypt(plainText, iv: iv);
         usLogueadoModel.password = encrypted.base64;
       }
-
-
-      print("1 "+usLogueadoModel.password + " 2 "+ usLogueadoModel.email);
 
       //String datosJson = loginToJson(usLogueadoModel);
       String datosJson = loginToJson(usLogueadoModel);
@@ -419,11 +412,6 @@ verificarConexionInternet(BuildContext context) async {
           showAlertDialog(context, 'ERROR', '['+response.statusCode.toString()+'] ' +  msj);
         }
       }
-      /* setState(() {
-        isButtonEnabled = !isButtonEnabled;
-        print('------- setState -- valor Boolean ' + isButtonEnabled.toString());
-      }); */
-
       return response;
     } catch (e) {
       logger.w(e.toString());
@@ -483,10 +471,10 @@ verificarConexionInternet(BuildContext context) async {
     }
   }*/
 
-  void showSnackBar(BuildContext context, String value) {
+  void showSnackBar(BuildContext context, String mensajes) {
     Scaffold.of(context).showSnackBar(
       new SnackBar(
-        content: new Text(value),
+        content: new Text(mensajes),
         action: SnackBarAction(
           label: 'SI',
           onPressed: (){

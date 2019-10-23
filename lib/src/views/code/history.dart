@@ -31,9 +31,7 @@ class _HistoryState extends State<History> {
       final url = urlCodigosListXIdUsuario + idUsuario.toString();
       final resp = await http.get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
       if (resp.statusCode < 200 || resp.statusCode > 400 || json == null) {
-        logger.w(throw new Exception(
-            "ERROR! El servicio presento un error en la conexión: " +
-                resp.statusCode.toString()));
+        logger.w(throw new Exception( "ERROR! El servicio presento un error en la conexión: " + resp.statusCode.toString()));
       }
 
       setState(() {
@@ -82,7 +80,6 @@ class _HistoryState extends State<History> {
             color: Colors.red,
           ),
           onDismissed: ( direccion ){
-            //productosProvider.borrarProducto(data[i]['id']);
           },
           child: Container(
             color: Colors.black,
@@ -104,8 +101,6 @@ class _HistoryState extends State<History> {
                               : FadeInImage(
                                 image: NetworkImage( data[i]['ruta_url'] ),
                                 placeholder: AssetImage('assets/jar-loading.gif'),
-  //                              height: 100.0,
-                                //width: 100.0, //double.infinity,
                                 fit: BoxFit.fill,
                               ),
                           ),
@@ -124,13 +119,11 @@ class _HistoryState extends State<History> {
                                   child: Padding(
                                     padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
                                     child: Text( new DateFormat("dd-MM-yyyy").format(DateTime.parse(data[i]['fec_creacion'])),
-                                      //data[i]['fec_creacion'],
                                       textAlign: TextAlign.left, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                 ),
-                                //Text( data[i]['usuarios_id'] == '' ? 'NO SE REGISTRO ID' : data[i]['usuarios_id'].toString() ),
-                                recortaMsj(data[i]['mensaje'].toString())//Text( data[i]['mensaje'], style: TextStyle(fontSize: 8), )
+                                recortaMsj(data[i]['mensaje'].toString())
                               ],
                             ),
                           ),

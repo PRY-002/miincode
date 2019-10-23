@@ -5,21 +5,16 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:miincode/src/models/usuario_model.dart';
+import 'package:miincode/src/models/usuarios.dart';
+import 'package:miincode/src/providers/codigos_provider.dart';
 import 'package:miincode/src/providers/database_helper.dart';
-import 'package:miincode/src/providers/usuarios_provider.dart';
 import 'package:miincode/src/utils/utils.dart';
 import 'package:miincode/src/utils/utils_conectividad.dart';
 import 'package:miincode/src/widgets/appbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-var logger = Logger(
-  printer: PrettyPrinter(),
-);
-
-var loggerNoStack = Logger(
-  printer: PrettyPrinter(methodCount: 0),
-);
+var logger = Logger( printer: PrettyPrinter() );
+var loggerNoStack = Logger( printer: PrettyPrinter(methodCount: 0) );
 
 void main() => runApp(Ajustes());
 
@@ -36,11 +31,9 @@ TextEditingController controllerGenero = TextEditingController();
 TextEditingController controllerDni = TextEditingController();
 
 String _fecnac;
-String _genero;
-String __nroMovil;
 
 DateTime fecNacimiento;
-UsuariosProvider up = new UsuariosProvider();
+CodigosProvider cp = new CodigosProvider();
 
 String correo = 'vacpcanta@gmail.com';
 String _email = '';
@@ -53,6 +46,8 @@ class Ajustes extends StatefulWidget {
 }
 
 class _AjustesState extends State<Ajustes> {
+
+  
 
   @override
   initState()  {
@@ -78,9 +73,7 @@ class _AjustesState extends State<Ajustes> {
 
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
-  final up = new UsuariosProvider();
-  UsuarioModel newUm = new UsuarioModel();
-  UsuarioModel um = new UsuarioModel();
+  Usuarios um = new Usuarios();
   
   bool _guardando = false;
   File foto;
@@ -89,39 +82,23 @@ class _AjustesState extends State<Ajustes> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed.
-    //_email.dispose();
-    //_nombres.dispose();
-    //_apepat.dispose();
-    //_apemat.dispose();
-    //_nromovil.dispose();
-    //_dni.dispose();
-
     super.dispose();
   }
 
   /* PROCESAMIENTO DE LAS IMAGENES  ---------------------------------*/
   picker() async {
-    print('-------------------->Picker is called');
     File img = await ImagePicker.pickImage(source: ImageSource.gallery);
     image = img;
     _procesarImagen(image);
-    print('-------------------->IMAGEN CAPTURADA ------------------------------');
-    print('-------------------->RUTA: '+img.path);
     setState(() {});
   }  
   _procesarImagen(File img) async {
     foto = image;
     if ( foto != null ) {
-      um.fotoUrl = null;
+      um.url_foto = null;
     }
     setState(() {});
   }
-  /* PROCESAMIENTO DE LAS IMAGENES  ---------------------------------*/
-//  @override
-//  void initState() {
-//
-//  }
 
   setSelectedRadio(int val) {
     setState(() {
@@ -141,79 +118,6 @@ class _AjustesState extends State<Ajustes> {
       )
     );
   }
-  _up() { 
-    String vr;
-    spReturnEmail().then((value){
-      print('111111111' + value);
-      vr = value;
-      print('222222222' + vr);
-    });
-
-    _muestraDatosUsuarioRegistrado(vr);
-    print(vr);
-    print('333333333' + vr.toString());
-
-  }
-
-  showDatosUsuarioPorEmail(String email) {
-    return FutureBuilder<UsuarioModel>(
-      future: DatabaseHelper.db.getUsuarioPorEmail(email),
-      builder: (BuildContext context, AsyncSnapshot<UsuarioModel> snapshot ) {
-        //if ( !snapshot.hasData ) { return Center(child: Text('NO SE ENCONTRARON DATOS')); }
-        
-        UsuarioModel usuarios = snapshot.data;
-
-
-        return Center(
-          child: Column(
-            children: <Widget>[
-              Text(usuarios.email),
-              Text(usuarios.nombres),
-              Text(usuarios.apepat),
-              Text(usuarios.apemat),
-              Text(usuarios.nromovil),
-              Text(usuarios.disponible),
-              Text(usuarios.fecnac),
-              Text(usuarios.genero),
-              Text(usuarios.dni)
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _muestraDatosUsuarioRegistrado_Email(String email) {
-    return FutureBuilder<List<UsuarioModel>>(
-      future: DatabaseHelper.db.getTodosPorEmail(email),
-      builder: (BuildContext context, AsyncSnapshot<List<UsuarioModel>> snapshot ) {
-
-        if ( !snapshot.hasData ) { return Center(child: CircularProgressIndicator());}
-        final usuarios = snapshot.data;
-        
-        return ListView.builder(
-          itemCount: usuarios.length,
-          itemBuilder: (BuildContext context, int i) => Container(
-            child: Column(
-              children: <Widget>[
-                Text(usuarios[i].id == null ? '' : usuarios[i].id),
-                Text(usuarios[i].uid == null ? '' : usuarios[i].uid),
-                Text(usuarios[i].email == null ? '' : usuarios[i].email),
-                Text(usuarios[i].nombres == null ? '' : usuarios[i].nombres),
-                Text(usuarios[i].apepat == null ? '' : usuarios[i].apepat),
-                Text(usuarios[i].apemat == null ? '' : usuarios[i].apemat),
-                Text(usuarios[i].nromovil == null ? '' : usuarios[i].nromovil),
-                Text(usuarios[i].fecnac == null ? '' : usuarios[i].fecnac),
-                Text(usuarios[i].fotoUrl == null ? '' : usuarios[i].fotoUrl),
-                Text(usuarios[i].genero == null ? '' : usuarios[i].genero),
-                Text(usuarios[i].dni == null ? '' : usuarios[i].dni)
-              ],
-            ),
-          ),
-        );
-      } 
-    );
-  }
 
   Widget _muestraDatosUsuarioRegistrado(String correo) {
     
@@ -221,12 +125,11 @@ class _AjustesState extends State<Ajustes> {
       showAlertDialog(context, '!!!!', 'El valor de la Variable necesaria es [ ' + correo.toString() + ' ]');  
     }
     
-
-    return FutureBuilder<List<UsuarioModel>>(
+    return FutureBuilder<List<Usuarios>>(
       future: DatabaseHelper.db.getTodosUsuarios(),
-      builder: (BuildContext context, AsyncSnapshot<List<UsuarioModel>> snapshot ){
+      builder: (BuildContext context, AsyncSnapshot<List<Usuarios>> snapshot ){
 
-        if ( !snapshot.hasData ) { return Center(child: CircularProgressIndicator()); }
+        if ( !snapshot.hasData ) { return Container(width: double.infinity, child: Center(child: CircularProgressIndicator())); }
 
         final usuarios = snapshot.data;
         if ( usuarios.length == 0) {
@@ -269,7 +172,7 @@ class _AjustesState extends State<Ajustes> {
                             heightFactor: 1,
                             widthFactor: 0.7,
                             child: Image.network(
-                            usuarios[i].fotoUrl
+                            usuarios[i].url_foto
                             )
                           ),
                         )                        
@@ -412,9 +315,9 @@ class _AjustesState extends State<Ajustes> {
                                       //textTheme: ButtonTextTheme.normal,
                                       color: Colors.white,
                                       label: Text( 
-                                        usuarios[i].fecnac != null && dtFecNac == null 
+                                        usuarios[i].fec_nacimiento != null && dtFecNac == null 
                                           ? 
-                                        usuarios[i].fecnac
+                                        usuarios[i].fec_nacimiento
                                           :
                                         dtFecNac == null ? 'Elige Fecha' : '${dtFecNac}',
                                           style: TextStyle(color: Colors.black),
@@ -435,9 +338,6 @@ class _AjustesState extends State<Ajustes> {
                                           showTitleActions: true,
                                           minTime: DateTime(1980, 1, 1),
                                           maxTime: DateTime(2030, 12, 31), 
-                                          onChanged: (date) {
-                                            print('change $date');
-                                          }, 
                                           onConfirm: (date) {
                                             fecNacimiento = date;
                                             if (fecNacimiento != null || fecNacimiento != '') {
@@ -487,7 +387,6 @@ class _AjustesState extends State<Ajustes> {
                                           groupValue: selectedRadio,
                                           activeColor: Colors.black,
                                           onChanged: (val){
-                                            print('Radio $val');
                                             setSelectedRadio(val);
                                           }
                                         ),
@@ -502,7 +401,6 @@ class _AjustesState extends State<Ajustes> {
                                           groupValue: selectedRadio,
                                           activeColor: Colors.black,
                                           onChanged: (val){
-                                            print('Radio $val');
                                             setSelectedRadio(val);
                                           }
                                         ),
@@ -529,7 +427,7 @@ class _AjustesState extends State<Ajustes> {
                           child: TextField(
                             enabled: estadoInputs,
                             textAlign: TextAlign.center,
-                            controller: controllerNroMovil..text = usuarios[i].nromovil,
+                            controller: controllerNroMovil..text = usuarios[i].nro_movil,
                             decoration: InputDecoration(
                               border: OutlineInputBorder(),
                               labelText: 'Número Móvil'
@@ -552,8 +450,6 @@ class _AjustesState extends State<Ajustes> {
                       color: Colors.black,
                       onPressed: () {
                         DatabaseHelper.db.pintaDatosRegistradosDeUsuario(usuarios[i].email);
-                        //up.editarUsuario(newUm);
-
                         setState(() {
                           estadoInputs == true ? estadoInputs = false : estadoInputs = true;  
                         });
@@ -604,30 +500,5 @@ class _AjustesState extends State<Ajustes> {
     );
 
   }
-
-  void _submit() async {
-    try {
-      if ( !formKey.currentState.validate() ) return;
-      formKey.currentState.save();
-      setState(() {_guardando = true; });
-
-      if ( foto != null ) {
-        um.fotoUrl = await up.subirImagen(foto);
-        print('-------------------->Foto del Usuario subida con éxito en el servidor.');
-      }
-
-      if ( um.id == null ) {
-        showAlertDialog(context, 'Mensaje', 'No ha registrado el nro de ID correspondiente.');
-      } else {
-        up.editarUsuario(um);
-        showAlertDialog(context, 'ÉXITO', 'DATOS ACTUALIZADOS.');
-      }
-      setState(() {_guardando = false; });
-
-    } catch (e) {
-      showAlertDialog(context, 'Mensaje', e.toString());
-    }
-    //Navigator.pop(context);
-  }
-
+  
 }

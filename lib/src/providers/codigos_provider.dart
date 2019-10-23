@@ -4,8 +4,7 @@ import 'dart:io';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:miincode/src/models/codigo_model.dart';
-import 'package:miincode/src/models/codigos.dart';
+import 'package:miincode/src/models/codigos_model.dart';
 import 'package:miincode/src/providers/ws.dart';
 import 'package:miincode/src/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,35 +56,14 @@ class CodigosProvider extends StatefulWidget {
   }
 
   // LISTAR TODOS LOS CODIGOS
-  Future<Codigos> fetchPost() async {
+  Future<CodigosModel> fetchPost() async {
     final response = await http.get(urlCodigosListAll);
     if ( response.statusCode == 200 ) {
-      return Codigos.fromJson(json.decode(response.body));
+      return CodigosModel.fromJson(json.decode(response.body));
     } else {
       throw Exception('Errores al cargar los Codigos');
     }
   }
-
-  Future<List<CodigoModel>> listarCodigos() async {
-    
-    final resp = await http.get('http://192.168.1.112:2800/api/codigos/list/4');//_urlListCodigos);
-    if ( resp == null ) {
-      logger.w('SE ENCONTRO NULO');
-    }
-    final Map<String, dynamic> decodedData = json.decode(resp.body);
-    final List<CodigoModel> codigos = new List();
-
-    if ( decodedData == null ) return [];
-    decodedData.forEach( ( id, cod ) {
-      final codTemp = CodigoModel.fromJson(cod);
-      if ( codTemp.usuarios_id == _idUsuario ) {
-        codTemp.usuarios_id = id;
-        codigos.add( codTemp );
-      }
-    });
-    return codigos;
-  }
-
 
   Future<String> subirImagen(File imagen) async {
     try {
@@ -127,7 +105,6 @@ class CodigosProvider extends StatefulWidget {
         return null;
       } else { 
         final respData = jsonDecode(resp.body);
-        print('Imagen subida\n' + respData['secure_url']);
         return respData['secure_url'];
       }
     } catch (e) {

@@ -6,15 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
-import 'package:miincode/src/models/usuario_registrar_model.dart';
-import 'package:miincode/src/models/usuario_search_model.dart';
 import 'package:miincode/src/models/usuarios.dart';
 import 'package:miincode/src/providers/ws.dart';
 import 'package:miincode/src/utils/utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:encrypt/encrypt.dart' as encr;
 import 'package:miincode/src/utils/utils_conectividad.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /* ----- LOGGER ---------------- */
 var logger = Logger(printer: PrettyPrinter());
@@ -165,31 +162,32 @@ class _LoginEasyState extends State<LoginEasy> {
                       child: Text(tituloBoton, style: TextStyle(fontSize: 20),),
                       onPressed: isDisabledButtonSiguiente ? null :
                         () {
-                          print('presionaste el boton... Siguiente.');
-                          if ( _formKey.currentState.validate() == true ) {
-                            print('-----> ' + _formKey.currentState.validate().toString());
-                            // Busca el usuario en la BD y devuelve BOOLEANO si es encontrado o no.
-                            Future<dynamic> aaa = searchUserByEmail(emailController.text);
-                            //if ( !usuarioRegistradoEstado ) {
-                            aaa.then((value) {
-                              if ( !value ) {
-                                // Si el usuario NO esta registrado, se le envía al correo su CODIGO de acceso.
-                                enviarCodigoAcceso();
-                                print('----------> NO registrado');
-                              } else {
+                          existeConexionInternet().then((value){
+                            if ( value == true ) {
+                              if ( _formKey.currentState.validate() == true ) {
                                 setState(() {
-                                  isDisabledButtonSiguiente = true;
-                                  isDisabledTextEmail = true;
-                                  isDisabledButtonIngresar = false; 
-                                  isDisabledTextCodigo = false;
-                                  showAlertDialog(myGlobals.scaffoldKey.currentContext, 'Mensaje', 'Debe digitar su contraseña.');
+                                isDisabledButtonSiguiente = true;
                                 });
-                                print('----------> Registrado');
+                                  searchUserByEmail(emailController.text).then((value) {
+                                    if ( !value ) {
+                                      enviarCodigoAcceso();   // Si el usuario NO esta registrado, se le envía al correo su CODIGO de acceso.
+                                    } else {
+                                      setState(() {
+                                        isDisabledButtonSiguiente = true;
+                                        isDisabledTextEmail = true;
+                                        isDisabledButtonIngresar = false; 
+                                        isDisabledTextCodigo = false;
+                                        showAlertDialog(myGlobals.scaffoldKey.currentContext, 'Mensaje', 'Ingrese su contraseña.');
+                                      });
+                                    }
+                                  });
+                              } else {
+                                throw e;
                               }
-                            });                            
-                          } else {
-                            throw e;
-                          }
+                            } else {
+                              showAlertDialog(context, 'Error', 'Verifique su conexion a Internet.');
+                            }
+                          });
                         },
                       color: Colors.blueAccent,
                       disabledColor: Colors.grey,
@@ -207,7 +205,6 @@ class _LoginEasyState extends State<LoginEasy> {
                             child: IconButton(
                               icon: Icon(Icons.arrow_back, size: 35,),
                               onPressed: () {
-                                print('presionaste el boton REENVIAR CODIGO...');    
                                 setState(() {
                                   isDisabledButtonIngresar = true;
                                   isDisabledTextCodigo = true;
@@ -228,18 +225,14 @@ class _LoginEasyState extends State<LoginEasy> {
                               textColor: Colors.white,
                               child: Text('INGRESAR', style: TextStyle(fontSize: 20),),
                               onPressed: () {
-                                /*
-                                  Si digita el CODIGO correcto Ingresa.
-                                */
+                                // Si digita el CODIGO correcto Ingresa.
                                   final plainText = codigoController.text; 
                                   final key = encr.Key.fromLength(32);
                                   final iv = encr.IV.fromLength(16);
                                   final encrypter = encr.Encrypter(encr.AES(key));
                                   final encrypted = encrypter.encrypt(plainText, iv: iv);
-                                  //usLogueadoModel.password = encrypted.base64;
 
-                                  print('----------> usuarioCodigo    ' + usuarioCodigo);
-                                  print('----------> encrypted.base64 ' + encrypted.base64);
+
                                 if ( encrypted.base64 == usuarioCodigo ) {
                                   if ( !usuarioRegistradoEstado ) {
                                     registrarUsuario(myGlobals.scaffoldKey.currentContext, emailController.text, codigoController.text);
@@ -249,14 +242,13 @@ class _LoginEasyState extends State<LoginEasy> {
                                 } else {
                                   showAlertDialog(myGlobals.scaffoldKey.currentContext, 'Error', 'Codigo Incorrecto');
                                 }
-                                print('presionaste el boton INGRESAR...');
                               },
                               color: Colors.blueAccent,
                               disabledColor: Colors.grey,
                               disabledTextColor: Colors.white,
                             ),
                           ),
-                        ),                        
+                        ),
                       ],
                     ),
                   ),
@@ -272,7 +264,10 @@ class _LoginEasyState extends State<LoginEasy> {
     );
   }
 
-  searchUserByEmail(String email) async {
+  
+
+
+  Future<bool> searchUserByEmail(String email) async {
     /* Servicio REST que devuelva TRUE or FALSE si el correo esta registrado o no. Ese valor se almacenará en la variable 'usuarioRegistradoEstado' */
     String url = urlSearchUserByEmail + email;
     final resp = await http.get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
@@ -313,7 +308,8 @@ class _LoginEasyState extends State<LoginEasy> {
   }
 
   registrarUsuario(BuildContext context, String _email, String _password) async {
-    UsuarioRegistrarModel usRegistrarModel = new UsuarioRegistrarModel();
+    Usuarios usRegistrar = new Usuarios();
+    
 
     final plainText = _password; 
     final key = encr.Key.fromLength(32);
@@ -321,25 +317,25 @@ class _LoginEasyState extends State<LoginEasy> {
     final encrypter = encr.Encrypter(encr.AES(key));
     final encrypted = encrypter.encrypt(plainText, iv: iv);
 
-    usRegistrarModel.uid = '?';
-    usRegistrarModel.email = _email;
-    usRegistrarModel.password = encrypted.base64;
-    usRegistrarModel.nombres = '?';
-    usRegistrarModel.apepat = '?';
-    usRegistrarModel.apemat = '?';
-    usRegistrarModel.dni = '88888888';
-    usRegistrarModel.fec_nacimiento = '?';
-    usRegistrarModel.genero = '?';
-    usRegistrarModel.nro_movil = '999999999';
-    usRegistrarModel.url_foto = '?';
-    usRegistrarModel.fec_creacion = DateTime.now().toString();
-    usRegistrarModel.fec_actualizacion = DateTime.now().toString();
-    usRegistrarModel.estado = true;
-    usRegistrarModel.perfiles_id = 1;
+    usRegistrar.uid = '?';
+    usRegistrar.email = _email;
+    usRegistrar.password = encrypted.base64;
+    usRegistrar.nombres = '?';
+    usRegistrar.apepat = '?';
+    usRegistrar.apemat = '?';
+    usRegistrar.dni = '88888888';
+    usRegistrar.fec_nacimiento = '?';
+    usRegistrar.genero = '?';
+    usRegistrar.nro_movil = '999999999';
+    usRegistrar.url_foto = '?';
+    usRegistrar.fec_creacion = DateTime.now().toString();
+    usRegistrar.fec_actualizacion = DateTime.now().toString();
+    usRegistrar.estado = true;
+    usRegistrar.perfiles_id = 1;
 
     try {
       var response;
-      String datosJson = usuarioRmToJson(usRegistrarModel);
+      String datosJson = registerToJson(usRegistrar);
       var url = urlRegisterUser;
       response = await http.post(url, headers: {"Content-Type": "application/json"}, body: datosJson);
       var extractData = json.decode(response.body);
@@ -391,7 +387,6 @@ class _LoginEasyState extends State<LoginEasy> {
     } on MailerException catch (e) {
       showAlertDialog(myGlobals.scaffoldKey.currentContext, 'Error', 'No se pudo enviar el correo electronico.\n' + e.toString());
       for (var p in e.problems) {
-        print('Problem: ${p.code}: ${p.msg}');
       }
       return false;
     }

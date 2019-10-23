@@ -1,17 +1,9 @@
-class CodigosModel  {
+import 'dart:convert';
 
-  final List<CodigosModelData> data;
+CodigosModel codigosFromJson(String str) => CodigosModel.fromJson(json.decode(str));
+String codigosToJson(CodigosModel data) => json.encode(data.toJson());
 
-  CodigosModel({ this.data  });
-
-  factory CodigosModel.fromJson(Map<String, dynamic> parsedJson) {
-    return CodigosModel(
-      data: parsedJson['data']
-    );
-  }
-}
-
-class CodigosModelData {
+class CodigosModel {
   int id;
   int usuarios_id;
   String mensaje;
@@ -20,7 +12,7 @@ class CodigosModelData {
   String fec_actualizacion;
   bool estado;
 
-  CodigosModelData({
+  CodigosModel({
     this.id,
     this.usuarios_id,
     this.mensaje,
@@ -30,16 +22,35 @@ class CodigosModelData {
     this.estado
   });
 
-  factory CodigosModelData.fromJson(Map<String, dynamic> parsedJson) {
-    return CodigosModelData(
-      id                    : parsedJson['id'],
-      usuarios_id           : parsedJson['usuarios_id'],
-      mensaje               : parsedJson['mensaje'],
-      ruta_url              : parsedJson['ruta_url'],
-      fec_creacion          : parsedJson['fec_creacion'],
-      fec_actualizacion     : parsedJson['fec_actualizacion'],
-      estado                : parsedJson['estado'],
+  factory CodigosModel.fromJson(Map<String, dynamic> json) {
+    return CodigosModel(
+      id                : json['id'],
+      usuarios_id       : json['usuarios_id'],
+      mensaje           : json['mensaje'],
+      ruta_url          : json['ruta_url'],
+      fec_creacion      : json['fec_creacion'],
+      fec_actualizacion : json['fec_actualizacion'],
+      estado            : json['estado'],
     );
   }
 
+  factory CodigosModel.fromJsonListado(Map<String, dynamic> json) {
+    return CodigosModel(
+      mensaje           : json["mensaje"],
+      ruta_url          : json["ruta_url"],
+      fec_creacion      : json["fec_creacion"],
+      fec_actualizacion : json["fec_actualizacion"],
+      estado            : json["estado"]
+    );
+  }
+  
+  Map<String, dynamic> toJson() => {
+    //"id"                : id,
+    "usuarios_id"       : usuarios_id,
+    "mensaje"           : mensaje,
+    "ruta_url"          : ruta_url,
+    "fec_creacion"      : fec_creacion,
+    "fec_actualizacion" : fec_actualizacion,
+    "estado"            : estado
+  };
 }

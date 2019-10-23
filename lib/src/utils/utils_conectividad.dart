@@ -1,7 +1,6 @@
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:miincode/src/models/usuario_model.dart';
 import 'package:miincode/src/providers/usuarios_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,7 +13,7 @@ var loggerNoStack = Logger( printer: PrettyPrinter(methodCount: 0) );
 final String spSesionActiva = 'spSesionActiva';
 final String spId = 'spId';
 final String spUid = 'spUid';
-final String  spEmail = 'spEmail';
+final String spEmail = 'spEmail';
 final String spNombres = 'spNombres';
 final String spApePat = 'spApePat';
 final String spApeMat = 'spApeMat';
@@ -32,7 +31,7 @@ final String spPerfilId = 'spPerfilId';
 UsuariosProvider up; // = UsuariosProvider();
 
 // COMPRUEBA LA CONEXION A INTERNET
-existeConexionInternet() async {
+Future<bool> existeConexionInternet() async {
   try {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile) { 
@@ -100,43 +99,27 @@ spGuardarDatosPersistentesDeUsuario(BuildContext context, int _spId, String _spU
 }
 
 spPintarDatosUsuarioLogueado() async {
-  SharedPreferences sp = await SharedPreferences.getInstance();
-  print('=================================================');
-  print('=================================================');
-  print(sp.getInt(spId));
-  print(sp.getString(spUid));
-  print(sp.getString(spEmail));
-  print(sp.getString(spNombres));
-  print(sp.getString(spApePat));
-  print(sp.getString(spApeMat));
-  print(sp.getString(spFecNac));
-  print(sp.getString(spGenero));
-  print(sp.getString(spDni));
-  print(sp.getString(spUrlFoto));
-  print(sp.getString(spNroMovil));
-  print(sp.getString(spFecCreacion));
-  print(sp.getString(spFecActualizacion));
-  print(sp.getBool(spEstado));
-  print(sp.getInt(spPerfilId));
-  print('=================================================');
-  print('=================================================');
+  SharedPreferences sp = await SharedPreferences.getInstance();  
+  logger.i('=================================================\n =================================================\n'+
+  'sp.getInt(spId): '+sp.getInt(spId).toString()+'\n'+
+  'sp.getString(spUid): '+sp.getString(spUid)+'\n'+
+  'sp.getString(spEmail): '+sp.getString(spEmail)+'\n'+
+  'sp.getString(spNombres): '+sp.getString(spNombres)+'\n'+
+  'sp.getString(spApePat): '+sp.getString(spApePat)+'\n'+
+  'sp.getString(spApeMat): '+sp.getString(spApeMat)+'\n'+
+  'sp.getString(spFecNac): '+sp.getString(spFecNac)+'\n'+
+  'sp.getString(spGenero): '+sp.getString(spGenero)+'\n'+
+  'sp.getString(spDni): '+sp.getString(spDni)+'\n'+
+  'sp.getString(spUrlFoto): '+sp.getString(spUrlFoto)+'\n'+
+  'sp.getString(spNroMovil): '+sp.getString(spNroMovil)+'\n'+
+  'sp.getString(spFecCreacion): '+sp.getString(spFecCreacion)+'\n'+
+  'sp.getString(spFecActualizacion): '+sp.getString(spFecActualizacion)+'\n'+
+  'sp.getBool(spEstado): '+sp.getBool(spEstado).toString()+'\n'+
+  'sp.getInt(spPerfilId): '+sp.getInt(spPerfilId).toString()+'\n'+
+  '=================================================\n =================================================');
 }
 // ------------------------------------------------------------------------------------------------------------------
 
-Future<UsuarioModel> spObtenerDatos(BuildContext context) async {
-  UsuarioModel um = UsuarioModel();
-  SharedPreferences sp = await SharedPreferences.getInstance();
-  um.id = sp.getString(spId);
-  um.uid = sp.getString(spUid);
-  um.email = sp.getString(spEmail);
-  um.nombres = sp.getString(spNombres);
-  um.apepat = sp.getString(spApePat);
-  um.apemat = sp.getString(spApeMat);
-  um.nromovil = sp.getString(spNroMovil);
-  um.disponible = sp.getString(spEstado);
-  um.fotoUrl = sp.getString(spUrlFoto);
-  return um;
-}
 
 spBorrarDatosVariablesSesionPersistente(BuildContext context, String nameLayout) async {
   SharedPreferences sp = await SharedPreferences.getInstance();

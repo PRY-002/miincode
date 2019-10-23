@@ -59,7 +59,6 @@ class ProductosProvider extends StatefulWidget{
           productos.add( prodTemp );        
         }
       });
-      // print('-------------------->'+ productos[0].id );
 
     });
     return productos;
@@ -81,7 +80,6 @@ class ProductosProvider extends StatefulWidget{
         final prodTemp = ProductoModel.fromJson(prod);
               productos.add( prodTemp );        
         i = i + 1;      
-      print('-------> CONTEO: ' + i.toString());
       });
       return productos;
     } catch (e) {

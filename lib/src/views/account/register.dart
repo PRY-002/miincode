@@ -6,7 +6,7 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
-import 'package:miincode/src/models/usuario_registrar_model.dart';
+import 'package:miincode/src/models/usuarios.dart';
 import 'package:miincode/src/providers/codigos_provider.dart';
 import 'package:miincode/src/providers/ws.dart';
 import 'package:miincode/src/utils/utils.dart';
@@ -592,11 +592,12 @@ class _RegisterState extends State<Register> {
     });
 
     CodigosProvider cp = new CodigosProvider();
-    UsuarioRegistrarModel usRegistrarModel = new UsuarioRegistrarModel();
+    //UsuarioRegistrarModel usRegistrarModel = new UsuarioRegistrarModel();
+    Usuarios usRegister = new Usuarios();
     try {
-      usRegistrarModel.fec_nacimiento = _fecNacimiento;
-      usRegistrarModel.uid = _uid;
-      usRegistrarModel.email = _email.text;
+      usRegister.fec_nacimiento = _fecNacimiento;
+      usRegister.uid = _uid;
+      usRegister.email = _email.text;
 
       /* Encriptandooo ------------------- */
       final plainText = _password.text; //
@@ -606,33 +607,33 @@ class _RegisterState extends State<Register> {
       final encrypted = encrypter.encrypt(plainText, iv: iv);
       /* Encriptandooo ------------------- */
 
-      usRegistrarModel.password = encrypted.base64;
-      usRegistrarModel.nombres = _nombres.text;
-      usRegistrarModel.apepat = _apePat.text;
-      usRegistrarModel.apemat = _apeMat.text;
-      usRegistrarModel.genero = _genero;
-      usRegistrarModel.dni = _dni.text == '' ? '88888888' : _dni.text;
+      usRegister.password = encrypted.base64;
+      usRegister.nombres = _nombres.text;
+      usRegister.apepat = _apePat.text;
+      usRegister.apemat = _apeMat.text;
+      usRegister.genero = _genero;
+      usRegister.dni = _dni.text == '' ? '88888888' : _dni.text;
 
       _urlFoto = await cp.verificarConexionInternetSubirImagen(context, foto); // SUBE LA FOTO
         if (_urlFoto == null || _urlFoto.isEmpty || _urlFoto == '') {
           showAlertDialog(context, 'Error', 'Se requiere agregar una foto.');
-          usRegistrarModel.url_foto = '';
+          usRegister.url_foto = '';
         } else if( _urlFoto == 'No hay Internet') {
           showAlertDialog(context, 'Error', 'No puede conectarse. Por favor, compruebe la conexión a Internet');
         } else {          
-          usRegistrarModel.url_foto = _urlFoto;
-          usRegistrarModel.nro_movil = _nroMovil.text == '' ? '999999999' : _nroMovil.text;
-          usRegistrarModel.fec_creacion = _fecCreacion;
-          usRegistrarModel.fec_actualizacion = _fecActualizacion;
-          usRegistrarModel.estado = _estado;
-          usRegistrarModel.perfiles_id = _perfilesId;
+          usRegister.url_foto = _urlFoto;
+          usRegister.nro_movil = _nroMovil.text == '' ? '999999999' : _nroMovil.text;
+          usRegister.fec_creacion = _fecCreacion;
+          usRegister.fec_actualizacion = _fecActualizacion;
+          usRegister.estado = _estado;
+          usRegister.perfiles_id = _perfilesId;
           var response;
 
-          if (usRegistrarModel.email != '' && usRegistrarModel.password != '' && usRegistrarModel.nombres != '' &&
-            usRegistrarModel.apepat != '' && usRegistrarModel.apemat != '' && usRegistrarModel.fec_nacimiento != '' &&
-            usRegistrarModel.genero != '' && usRegistrarModel.url_foto != '') {             
+          if (usRegister.email != '' && usRegister.password != '' && usRegister.nombres != '' &&
+            usRegister.apepat != '' && usRegister.apemat != '' && usRegister.fec_nacimiento != '' &&
+            usRegister.genero != '' && usRegister.url_foto != '') {             
 
-            String datosJson = usuarioRmToJson(usRegistrarModel);
+            String datosJson = registerToJson(usRegister);
             var url = urlRegisterUser;
             response = await http.post(url, headers: {"Content-Type": "application/json"}, body: datosJson);
             var extractData = json.decode(response.body);

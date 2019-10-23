@@ -1,11 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import 'package:miincode/src/models/codigo_model.dart';
-import 'package:miincode/src/models/codigos_model.dart';
 import 'package:miincode/src/providers/ws.dart';
 
 var logger = Logger(printer: PrettyPrinter());
@@ -31,24 +28,6 @@ Future loadCodigos2(int idUsuario) async {
     logger.v('-------------------------> 001' + url);
     _createItem(data);
 
-/*
-    logger.v('-------------------------> 002' + resp.body.toString());
-
- 
-   
-    final Map<String, dynamic> decodedData = json.decode(resp.body);
-    logger.v('-------------------------> 003' + decodedData.toString());
-    final cm2 = CodigosModel.fromJson(decodedData);
-    logger.v('-------------------------> 004' + cm2.toString());
-    logger.v('-------------------------> 004.1' + cm2.data.length.toString());
-
-    final Map<String, dynamic> decodedCodigosData = json.decode(resp.body);
-    logger.v('-------------------------> 005' + decodedCodigosData.toString());
-    final cmcm = CodigosModelData.fromJson(decodedCodigosData);
-    logger.v('-------------------------> 005.1' + cmcm.toString());
-    final List<CodigosModelData> codigos = new List();
-    codigos.add(cmcm);
-    logger.v('-------------------------> 005.2' + codigos.toString());*/
     return null;
   } catch (e) {
     logger.w(e.toString());
@@ -56,8 +35,6 @@ Future loadCodigos2(int idUsuario) async {
 }
 
 Widget _createItem(List data) {
-
-              logger.w('-::::::::::::> Lista '+data.length.toString());
   return new Scaffold(
     appBar: new AppBar(
       title: new Text('Contact List'),

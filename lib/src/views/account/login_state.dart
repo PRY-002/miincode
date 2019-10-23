@@ -43,7 +43,6 @@ class LoginState with ChangeNotifier {
       idToken: googleAuth.idToken,
     );
     final FirebaseUser user = await _auth.signInWithCredential(credential);
-    print('-------------------->SIGNED IN' + user.displayName);
     return user;
   }*/
 }

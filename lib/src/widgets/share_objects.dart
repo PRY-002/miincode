@@ -18,11 +18,9 @@ class _MyAppState extends State<CompartirObjeto> {
 
   void handleResponse(response, {String appName}) {
     if (response == 0) {
-      print('-------------------->'+"-------------------->failed.");
     } else if (response == 1) {
-      print('-------------------->'+"-------------------->success");
     } else if (response == 2) {
-      print('-------------------->'+"-------------------->application isn't installed");
+    
       if (appName != null) {
         scaffoldKey.currentState.showSnackBar(new SnackBar(
           content: new Text("${appName} isn't installed."),

@@ -3,15 +3,12 @@ import 'dart:io';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
-import 'package:miincode/src/models/codigo_model.dart';
-import 'package:miincode/src/models/producto_model.dart';
 import 'package:miincode/src/providers/codigos_provider.dart';
 import 'package:miincode/src/utils/utils.dart';
 import 'package:miincode/src/views/code/create/qr_code_creater.dart';
 import 'package:miincode/src/widgets/appbar.dart';
 
 CodigosProvider cp = new CodigosProvider();
-CodigoModel cm = new CodigoModel();
 
 var logger = Logger( printer: PrettyPrinter() );
 var loggerNoStack = Logger( printer: PrettyPrinter(methodCount: 0) );
@@ -34,9 +31,7 @@ class QRCreate extends StatefulWidget {
 
 class _QRCreateState extends State<QRCreate> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final GlobalKey _keyExpandableTexto = GlobalKey();
 
-  ProductoModel producto = new ProductoModel();
   File foto;
   final TextStyle estiloTexto = TextStyle(fontSize: 25);
   final Color colorRed = Colors.red;
@@ -107,7 +102,7 @@ class _QRCreateState extends State<QRCreate> {
                 children: <Widget>[
                   Container(
                     child: TextField(
-                      maxLength: 128,
+                      maxLength: 256,
                       textAlign: TextAlign.start,
                       textAlignVertical: TextAlignVertical.top,
                       controller: controlerQRTexto,
@@ -447,7 +442,6 @@ class _QRCreateState extends State<QRCreate> {
                     alignment: Alignment.centerRight,
                     child: RaisedButton.icon(
                       onPressed: (){
-                        print('======================================>' + _formKey.currentState.validate().toString() );
                         if ( _formKey.currentState.validate() ) {
                           controlerQRSendEmail.text == null || controlerQRSendEmail.text == ''
                             ? 
